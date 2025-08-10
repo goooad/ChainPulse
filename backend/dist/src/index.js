@@ -44,6 +44,23 @@ app.use('/api/kimi', kimi_1.default);
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+// 配置状态检查接口
+app.get('/api/config/status', (req, res) => {
+    const config = {
+        twitter: {
+            configured: !!(process.env.TWITTER_BEARER_TOKEN || process.env.TWITTER_API_KEY),
+            enabled: process.env.USE_REAL_TWITTER_API === 'true'
+        },
+        kimi: {
+            configured: !!process.env.MOONSHOT_API_KEY,
+            enabled: process.env.USE_REAL_KIMI_API === 'true'
+        }
+    };
+    res.json({
+        success: true,
+        data: config
+    });
+});
 // WebSocket服务
 const wsService = new WebSocketService_1.WebSocketService(wss);
 // 启动服务

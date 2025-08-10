@@ -45,6 +45,23 @@ router.get('/overview', async (req, res) => {
         });
     }
 });
+// 获取情绪历史数据
+router.get('/history', async (req, res) => {
+    try {
+        const { timeRange = '24h' } = req.query;
+        const signals = await sentimentService.getSentimentHistory(timeRange);
+        res.json({
+            success: true,
+            data: signals
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            error: '获取情绪历史数据失败'
+        });
+    }
+});
 // 手动触发情绪分析
 router.post('/analyze', async (req, res) => {
     try {

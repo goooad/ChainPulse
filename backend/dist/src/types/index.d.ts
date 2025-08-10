@@ -27,6 +27,9 @@ export interface SentimentSignal {
         volume?: number;
         mentions?: number;
         influencerScore?: number;
+        keywords?: string[];
+        impact?: string;
+        rawData?: any;
     };
 }
 export type SentimentType = 'BULLISH' | 'BEARISH' | 'NEUTRAL';

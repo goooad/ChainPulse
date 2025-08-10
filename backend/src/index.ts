@@ -47,6 +47,36 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
+// 配置状态检查接口
+app.get('/api/config/status', (req, res) => {
+  const twitterConfigured = !!(process.env.TWITTER_BEARER_TOKEN || process.env.TWITTER_API_KEY);
+  const kimiConfigured = !!process.env.MOONSHOT_API_KEY;
+  
+  console.log('配置状态检查:', {
+    TWITTER_BEARER_TOKEN: process.env.TWITTER_BEARER_TOKEN ? '已设置' : '未设置',
+    TWITTER_API_KEY: process.env.TWITTER_API_KEY ? '已设置' : '未设置',
+    MOONSHOT_API_KEY: process.env.MOONSHOT_API_KEY ? '已设置' : '未设置',
+    twitterConfigured,
+    kimiConfigured
+  });
+  
+  const config = {
+    twitter: {
+      configured: twitterConfigured,
+      enabled: process.env.USE_REAL_TWITTER_API !== 'false'
+    },
+    kimi: {
+      configured: kimiConfigured,
+      enabled: process.env.USE_REAL_KIMI_API !== 'false'
+    }
+  };
+  
+  res.json({
+    success: true,
+    data: config
+  });
+})
+
 // WebSocket服务
 const wsService = new WebSocketService(wss)
 

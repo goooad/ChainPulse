@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Settings as SettingsIcon, Shield, Bell, Palette, Key } from 'lucide-react'
+import ConfigStatus from '../components/ConfigStatus'
 
 const Settings: React.FC = () => {
   const [settings, setSettings] = useState({
@@ -49,6 +50,9 @@ const Settings: React.FC = () => {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">设置</h1>
         <p className="mt-2 text-gray-600 dark:text-gray-300">配置Web3Sentry的各项功能和参数</p>
       </div>
+
+      {/* 配置状态显示 */}
+      <ConfigStatus />
 
       {/* 安全设置 */}
       <div className="card">

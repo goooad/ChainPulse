@@ -11,6 +11,43 @@ const api = axios.create({
   },
 });
 
+// 添加请求拦截器用于调试
+api.interceptors.request.use(
+  (config) => {
+    console.log('发送API请求:', {
+      url: config.url,
+      method: config.method,
+      baseURL: config.baseURL,
+      data: config.data
+    });
+    return config;
+  },
+  (error) => {
+    console.error('请求拦截器错误:', error);
+    return Promise.reject(error);
+  }
+);
+
+// 配置状态服务
+export class ConfigService {
+  static async getConfigStatus(): Promise<{
+    twitter: { configured: boolean; enabled: boolean };
+    kimi: { configured: boolean; enabled: boolean };
+  }> {
+    try {
+      const response = await api.get('/config/status');
+      return response.data.data;
+    } catch (error) {
+      console.error('获取配置状态失败:', error);
+      // 返回默认状态
+      return {
+        twitter: { configured: false, enabled: false },
+        kimi: { configured: false, enabled: false }
+      };
+    }
+  }
+}
+
 // Twitter API 服务
 export class TwitterService {
   private static readonly API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';

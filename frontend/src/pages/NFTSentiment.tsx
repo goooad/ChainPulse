@@ -12,12 +12,32 @@ const NFTSentiment: React.FC = () => {
   const [twitterData, setTwitterData] = useState<TwitterSearchResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // API配置状态检查
-  const apiStatus = {
-    twitter: !!import.meta.env.VITE_TWITTER_BEARER_TOKEN,
-    kimi: !!import.meta.env.VITE_KIMI_API_KEY,
-    useRealApi: import.meta.env.VITE_USE_REAL_API === 'true'
-  };
+  // API配置状态检查 - 从后端获取
+  const [apiStatus, setApiStatus] = useState({
+    twitter: { configured: false, enabled: false },
+    kimi: { configured: false, enabled: false },
+    useRealApi: import.meta.env.VITE_USE_REAL_API !== 'false'
+  });
+
+  // 获取API配置状态
+  React.useEffect(() => {
+    const fetchConfigStatus = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/config/status');
+        const data = await response.json();
+        if (data.success) {
+          setApiStatus(prev => ({
+            ...prev,
+            twitter: data.data.twitter,
+            kimi: data.data.kimi
+          }));
+        }
+      } catch (error) {
+        console.error('获取配置状态失败:', error);
+      }
+    };
+    fetchConfigStatus();
+  }, []);
 
   const handleSearch = async () => {
     // 验证搜索查询
@@ -108,15 +128,15 @@ const NFTSentiment: React.FC = () => {
             <span className="text-sm font-medium text-gray-700">API配置状态:</span>
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${apiStatus.twitter ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span className={apiStatus.twitter ? 'text-green-700' : 'text-red-700'}>
-                  Twitter {apiStatus.twitter ? '已配置' : '未配置'}
+                <div className={`w-2 h-2 rounded-full ${apiStatus.twitter.configured ? 'bg-green-500' : 'bg-red-500'}`} />
+                <span className={apiStatus.twitter.configured ? 'text-green-700' : 'text-red-700'}>
+                  Twitter {apiStatus.twitter.configured ? '已配置' : '未配置'}
                 </span>
               </div>
               <div className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${apiStatus.kimi ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span className={apiStatus.kimi ? 'text-green-700' : 'text-red-700'}>
-                  Kimi {apiStatus.kimi ? '已配置' : '未配置'}
+                <div className={`w-2 h-2 rounded-full ${apiStatus.kimi.configured ? 'bg-green-500' : 'bg-red-500'}`} />
+                <span className={apiStatus.kimi.configured ? 'text-green-700' : 'text-red-700'}>
+                  Kimi {apiStatus.kimi.configured ? '已配置' : '未配置'}
                 </span>
               </div>
               <div className="flex items-center gap-1">
@@ -127,9 +147,9 @@ const NFTSentiment: React.FC = () => {
               </div>
             </div>
           </div>
-          {(!apiStatus.twitter || !apiStatus.kimi) && apiStatus.useRealApi && (
+          {(!apiStatus.twitter.configured || !apiStatus.kimi.configured) && apiStatus.useRealApi && (
             <div className="mt-2 text-sm text-orange-600">
-              ⚠️ 需要配置API密钥才能使用真实数据，请查看 <code className="bg-orange-100 px-1 rounded">API_SETUP.md</code> 文档
+              ⚠️ 需要配置API密钥才能使用真实数据，请查看设置页面进行配置
             </div>
           )}
         </div>
