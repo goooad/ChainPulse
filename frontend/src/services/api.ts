@@ -50,7 +50,6 @@ export class ConfigService {
 
 // Twitter API 服务
 export class TwitterService {
-  private static readonly API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
   static async searchTweets(params: TwitterSearchParams): Promise<TwitterSearchResponse> {
     try {
@@ -80,24 +79,6 @@ export class TwitterService {
     }
   }
 
-  private static transformTwitterResponse(data: any): TwitterSearchResponse {
-    const tweets = data.data?.map((tweet: any) => ({
-      id: tweet.id,
-      text: tweet.text,
-      author: tweet.author_id,
-      created_at: tweet.created_at,
-      metrics: {
-        retweet_count: tweet.public_metrics?.retweet_count || 0,
-        like_count: tweet.public_metrics?.like_count || 0,
-        reply_count: tweet.public_metrics?.reply_count || 0,
-      }
-    })) || [];
-
-    return {
-      tweets,
-      total: data.meta?.result_count || 0
-    };
-  }
 
   static async getTweetsByHashtag(hashtag: string, maxResults: number = 100): Promise<TwitterSearchResponse> {
     return this.searchTweets({
@@ -133,58 +114,7 @@ export class KimiService {
     }
   }
 
-  private static parseKimiResponse(content: string): KimiAnalysisResponse {
-    try {
-      // 尝试提取JSON部分
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        return {
-          sentiment: parsed.sentiment || 'neutral',
-          score: parsed.score || 0,
-          confidence: parsed.confidence || 0.5,
-          keywords: parsed.keywords || [],
-          analysis: parsed.analysis || content
-        };
-      }
 
-      // 如果无法解析JSON，则进行简单的文本分析
-      return this.fallbackAnalysis(content);
-    } catch (error) {
-      console.error('解析Kimi响应失败:', error);
-      return this.fallbackAnalysis(content);
-    }
-  }
-
-  private static fallbackAnalysis(content: string): KimiAnalysisResponse {
-    const lowerContent = content.toLowerCase();
-    
-    // 简单的情绪判断
-    const positiveWords = ['positive', '积极', '看好', '上涨', '牛市', 'bullish'];
-    const negativeWords = ['negative', '消极', '看空', '下跌', '熊市', 'bearish'];
-    
-    let sentiment: 'positive' | 'negative' | 'neutral' = 'neutral';
-    let score = 0;
-    
-    const positiveCount = positiveWords.filter(word => lowerContent.includes(word)).length;
-    const negativeCount = negativeWords.filter(word => lowerContent.includes(word)).length;
-    
-    if (positiveCount > negativeCount) {
-      sentiment = 'positive';
-      score = Math.min(0.8, 0.3 + positiveCount * 0.1);
-    } else if (negativeCount > positiveCount) {
-      sentiment = 'negative';
-      score = Math.max(-0.8, -0.3 - negativeCount * 0.1);
-    }
-
-    return {
-      sentiment,
-      score,
-      confidence: 0.6,
-      keywords: [],
-      analysis: content
-    };
-  }
 
   static async analyzeNFTSentiment(tweets: string[], collection: string): Promise<KimiAnalysisResponse> {
     const prompt = `请分析以下关于NFT项目"${collection}"的推文内容，进行情绪分析：
