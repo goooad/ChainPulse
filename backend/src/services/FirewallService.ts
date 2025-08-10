@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 import axios from 'axios'
-import { TransactionRisk, RiskLevel } from '../../../shared/types'
+import { TransactionRisk, RiskLevel } from '../types'
 
 export class FirewallService {
   private provider: ethers.JsonRpcProvider

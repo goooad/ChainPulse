@@ -1,6 +1,6 @@
 import axios from 'axios'
 import cron from 'node-cron'
-import { SentimentSignal, SentimentType } from '../../../shared/types'
+import { SentimentSignal, SentimentType } from '../types'
 
 export class SentimentService {
   private isMonitoring = false
@@ -220,14 +220,18 @@ export class SentimentService {
       
       const signal: SentimentSignal = {
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        symbol: 'NFT', // 默认符号
         sentiment: result.sentiment as SentimentType,
+        score: result.confidence * 100, // 转换为分数
         confidence: result.confidence,
         reasoning: result.reasoning,
-        source: data.source || 'unknown',
+        sources: [data.source || 'unknown'],
         timestamp: new Date(),
-        keywords: result.keywords || [],
-        impact: result.impact || 'MEDIUM',
-        rawData: data
+        metadata: {
+          keywords: result.keywords || [],
+          impact: result.impact || 'MEDIUM',
+          rawData: data
+        }
       }
 
       return signal
@@ -257,25 +261,31 @@ export class SentimentService {
     return [
       {
         id: '1',
+        symbol: 'NFT',
         sentiment: 'BULLISH',
+        score: 85,
         confidence: 0.85,
         reasoning: 'NFT市场出现积极信号，多个蓝筹项目价格上涨',
-        source: 'twitter',
+        sources: ['twitter'],
         timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30分钟前
-        keywords: ['NFT', 'bullish', 'moon'],
-        impact: 'HIGH',
-        rawData: {}
+        metadata: {
+          keywords: ['NFT', 'bullish', 'moon'],
+          impact: 'HIGH'
+        }
       },
       {
         id: '2',
+        symbol: 'NFT',
         sentiment: 'BEARISH',
+        score: 72,
         confidence: 0.72,
         reasoning: '市场担忧情绪上升，交易量下降',
-        source: 'discord',
+        sources: ['discord'],
         timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1小时前
-        keywords: ['bear', 'dump', 'sell'],
-        impact: 'MEDIUM',
-        rawData: {}
+        metadata: {
+          keywords: ['bear', 'dump', 'sell'],
+          impact: 'MEDIUM'
+        }
       }
     ]
   }

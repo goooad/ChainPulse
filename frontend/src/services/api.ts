@@ -23,10 +23,23 @@ export class TwitterService {
         tweet_fields: params.tweet_fields || 'created_at,author_id,public_metrics,context_annotations'
       });
 
-      return response.data;
-    } catch (error) {
+      // 检查响应是否成功
+      if (!response.data.success) {
+        throw new Error(response.data.error || '获取Twitter数据失败');
+      }
+
+      return response.data.data;
+    } catch (error: any) {
       console.error('Twitter API 调用失败:', error);
-      throw new Error('获取Twitter数据失败，请检查网络连接或API配置');
+      
+      // 处理特定的错误类型
+      if (error.response?.status === 429) {
+        throw new Error('Twitter API配额已用完，请稍后重试或联系管理员');
+      } else if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      } else {
+        throw new Error('获取Twitter数据失败，请检查网络连接或API配置');
+      }
     }
   }
 
@@ -205,24 +218,33 @@ export class NFTSentimentService {
         };
       }
 
-      // 生产环境使用真实API
-      // 1. 获取Twitter数据
-      const twitterData = await TwitterService.getTweetsByKeyword(query);
-      
-      if (!twitterData.tweets || twitterData.tweets.length === 0) {
-        throw new Error('未找到相关推文数据');
+      // 使用真实API
+      try {
+        // 1. 获取Twitter数据
+        const twitterData = await TwitterService.getTweetsByKeyword(query);
+        
+        if (!twitterData.tweets || twitterData.tweets.length === 0) {
+          throw new Error('未找到相关推文数据，请尝试其他关键词');
+        }
+
+        // 2. 提取推文文本
+        const tweetTexts = twitterData.tweets.map(tweet => tweet.text);
+
+        // 3. 调用Kimi进行情绪分析
+        const sentimentAnalysis = await KimiService.analyzeNFTSentiment(tweetTexts, query);
+
+        return {
+          twitterData,
+          sentimentAnalysis
+        };
+      } catch (twitterError: any) {
+        // 如果Twitter API失败，提供更详细的错误信息
+        if (twitterError.message.includes('配额已用完')) {
+          throw new Error('Twitter API配额已用完，请稍后重试或联系管理员升级API计划');
+        } else {
+          throw twitterError;
+        }
       }
-
-      // 2. 提取推文文本
-      const tweetTexts = twitterData.tweets.map(tweet => tweet.text);
-
-      // 3. 调用Kimi进行情绪分析
-      const sentimentAnalysis = await KimiService.analyzeNFTSentiment(tweetTexts, query);
-
-      return {
-        twitterData,
-        sentimentAnalysis
-      };
     } catch (error) {
       console.error('NFT情绪分析失败:', error);
       throw error;

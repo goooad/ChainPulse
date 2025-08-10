@@ -28,7 +28,7 @@ const wss = new WebSocketServer({ server })
 // 中间件
 app.use(helmet())
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   credentials: true
 }))
 app.use(express.json())
@@ -57,8 +57,8 @@ const priceService = new PriceService()
 
 // 启动实时监控
 firewallService.startMonitoring()
-sentimentService.startMonitoring()
-priceService.startMonitoring()
+//sentimentService.startMonitoring()
+//priceService.startMonitoring()
 
 const PORT = process.env.PORT || 3001
 

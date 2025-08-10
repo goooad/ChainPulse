@@ -154,7 +154,7 @@ export class MockApiService {
 // 开发环境检测
 export const isDevelopment = import.meta.env.DEV;
 
-// 是否使用模拟数据 - 强制使用真实API，因为已配置了API密钥
+// 是否使用模拟数据 - 根据用户要求，不使用模拟数据
 export const useMockData = false;
 
 // 调试信息
