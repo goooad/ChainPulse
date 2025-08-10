@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web3Sentry</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 350px;
+      min-height: 500px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+    }
+    
+    .header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 5px;
+    }
+    
+    .subtitle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      margin: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .status-text {
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+    
+    .status-indicator.inactive {
+      background: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+    
+    .stats {
+      padding: 0 20px;
+    }
+    
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+    
+    .stat-item:last-child {
+      border-bottom: none;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    
+    .stat-value {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .actions {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      text-align: center;
+      display: block;
+    }
+    
+    .btn-primary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .btn-primary:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+      background: rgba(0, 0, 0, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.3);
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #10b981;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    .recent-activity {
+      padding: 0 20px 20px;
+    }
+    
+    .activity-title {
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      opacity: 0.9;
+    }
+    
+    .activity-item {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: white;
+    }
+    
+    .activity-time {
+      opacity: 0.7;
+      font-size: 11px;
+    }
+    
+    .risk-high {
+      border-left: 3px solid #ef4444;
+    }
+    
+    .risk-medium {
+      border-left: 3px solid #f59e0b;
+    }
+    
+    .risk-low {
+      border-left: 3px solid #10b981;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">🛡️ Web3Sentry</div>
+    <div class="subtitle">链上行为防火墙</div>
+  </div>
+  
+  <div class="status">
+    <div class="status-text">防护状态</div>
+    <div class="toggle-switch">
+      <input type="checkbox" id="protection-toggle" checked>
+      <span class="slider"></span>
+    </div>
+  </div>
+  
+  <div class="stats">
+    <div class="stat-item">
+      <span class="stat-label">已拦截交易</span>
+      <span class="stat-value" id="blocked-count">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">已分析交易</span>
+      <span class="stat-value" id="analyzed-count">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">风险等级</span>
+      <span class="stat-value" id="risk-level">安全</span>
+    </div>
+  </div>
+  
+  <div class="recent-activity">
+    <div class="activity-title">最近活动</div>
+    <div id="activity-list">
+      <div class="activity-item risk-low">
+        <div>✅ 交易安全检查通过</div>
+        <div class="activity-time">2分钟前</div>
+      </div>
+      <div class="activity-item risk-medium">
+        <div>⚠️ 检测到中等风险交易</div>
+        <div class="activity-time">15分钟前</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="actions">
+    <button class="btn btn-primary" id="open-dashboard">
+      打开控制面板
+    </button>
+    <button class="btn btn-secondary" id="settings-btn">
+      设置
+    </button>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

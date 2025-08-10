@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>环境变量调试</title>
+</head>
+<body>
+    <h1>环境变量调试信息</h1>
+    <div id="debug-info"></div>
+    
+    <script type="module">
+        const debugInfo = {
+            VITE_USE_REAL_API: import.meta.env.VITE_USE_REAL_API,
+            VITE_TWITTER_BEARER_TOKEN: import.meta.env.VITE_TWITTER_BEARER_TOKEN ? '已配置' : '未配置',
+            VITE_KIMI_API_KEY: import.meta.env.VITE_KIMI_API_KEY ? '已配置' : '未配置',
+            DEV: import.meta.env.DEV,
+            MODE: import.meta.env.MODE
+        };
+        
+        console.log('环境变量调试:', debugInfo);
+        document.getElementById('debug-info').innerHTML = '<pre>' + JSON.stringify(debugInfo, null, 2) + '</pre>';
+    </script>
+</body>
+</html>

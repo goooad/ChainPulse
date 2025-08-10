@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>环境变量调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .env-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        .env-name {
+            font-weight: bold;
+            color: #495057;
+        }
+        .env-value {
+            font-family: monospace;
+            color: #28a745;
+            word-break: break-all;
+        }
+        .status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status.ok { background-color: #28a745; }
+        .status.error { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 环境变量调试页面</h1>
+        <p>这个页面用于检查Vite环境变量是否正确加载。</p>
+        
+        <h2>📋 环境变量状态</h2>
+        <div id="env-list"></div>
+        
+        <h2>🔍 详细信息</h2>
+        <div id="details"></div>
+    </div>
+
+    <script>
+        // 检查的环境变量列表
+        const envVars = [
+            'VITE_API_BASE_URL',
+            'VITE_TWITTER_BEARER_TOKEN',
+            'VITE_KIMI_API_KEY',
+            'VITE_USE_REAL_API',
+            'VITE_DEBUG_MODE'
+        ];
+
+        function checkEnvVars() {
+            const envList = document.getElementById('env-list');
+            const details = document.getElementById('details');
+            
+            let allEnvVars = {};
+            let hasErrors = false;
+
+            // 检查每个环境变量
+            envVars.forEach(varName => {
+                const value = import.meta.env[varName];
+                allEnvVars[varName] = value;
+                
+                const div = document.createElement('div');
+                div.className = 'env-item';
+                
+                const status = value ? 'ok' : 'error';
+                if (!value) hasErrors = true;
+                
+                div.innerHTML = `
+                    <div class="env-name">
+                        <span class="status ${status}"></span>
+                        ${varName}
+                    </div>
+                    <div class="env-value">
+                        ${value || '❌ 未定义'}
+                    </div>
+                `;
+                
+                envList.appendChild(div);
+            });
+
+            // 显示详细信息
+            details.innerHTML = `
+                <h3>🔧 调试信息</h3>
+                <p><strong>当前模式:</strong> ${import.meta.env.MODE}</p>
+                <p><strong>开发模式:</strong> ${import.meta.env.DEV ? '是' : '否'}</p>
+                <p><strong>生产模式:</strong> ${import.meta.env.PROD ? '是' : '否'}</p>
+                <p><strong>基础URL:</strong> ${import.meta.env.BASE_URL}</p>
+                
+                <h3>📝 所有VITE_环境变量</h3>
+                <pre style="background: #f8f9fa; padding: 15px; border-radius: 4px; overflow-x: auto;">
+${JSON.stringify(
+    Object.fromEntries(
+        Object.entries(import.meta.env).filter(([key]) => key.startsWith('VITE_'))
+    ), 
+    null, 
+    2
+)}
+                </pre>
+                
+                <h3>🚀 下一步</h3>
+                ${hasErrors ? `
+                    <div style="color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 4px;">
+                        <strong>⚠️ 发现问题:</strong> 有些环境变量未正确加载。<br>
+                        请检查 .env.local 文件是否存在于 frontend/ 目录下，并重启开发服务器。
+                    </div>
+                ` : `
+                    <div style="color: #155724; background: #d4edda; padding: 10px; border-radius: 4px;">
+                        <strong>✅ 环境变量正常:</strong> 所有必需的环境变量都已正确加载。<br>
+                        现在可以访问 <a href="/nft-sentiment">NFT情绪分析页面</a> 进行测试。
+                    </div>
+                `}
+            `;
+        }
+
+        // 页面加载完成后执行检查
+        document.addEventListener('DOMContentLoaded', checkEnvVars);
+    </script>
+</body>
+</html>
