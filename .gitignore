@@ -8,3 +8,11 @@ frontend/node_modules/
 .vscode/
 .codebuddy
 
+# 编译产物
+*.js
+*.js.map
+*.d.ts
+frontend/dist/
+backend/dist/
+frontend/build/
+backend/build/
