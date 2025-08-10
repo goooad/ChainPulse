@@ -9,6 +9,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: false,
 });
 
 // 添加请求拦截器用于调试
@@ -30,21 +31,55 @@ api.interceptors.request.use(
 
 // 配置状态服务
 export class ConfigService {
-  static async getConfigStatus(): Promise<{
+  static async getStatus(): Promise<{
     twitter: { configured: boolean; enabled: boolean };
     kimi: { configured: boolean; enabled: boolean };
   }> {
     try {
+      console.log('正在调用配置状态API...');
+      console.log('API baseURL:', api.defaults.baseURL);
+      
       const response = await api.get('/config/status');
-      return response.data.data;
-    } catch (error) {
+      console.log('配置状态API响应:', response.data);
+      
+      if (response.data && response.data.success && response.data.data) {
+        console.log('返回配置数据:', response.data.data);
+        return response.data.data;
+      } else {
+        console.error('配置状态API响应格式错误:', response.data);
+        // 如果API响应格式不对，但有数据，尝试直接返回
+        if (response.data && response.data.twitter && response.data.kimi) {
+          return response.data;
+        }
+        throw new Error('配置状态API响应格式错误');
+      }
+    } catch (error: any) {
       console.error('获取配置状态失败:', error);
-      // 返回默认状态
+      console.error('错误详情:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+      
+      // 如果是网络错误，不要返回默认状态，而是抛出错误
+      if (error.code === 'ERR_NETWORK' || error.message.includes('CORS')) {
+        throw error;
+      }
+      
+      // 只有在真正的API错误时才返回默认状态
       return {
         twitter: { configured: false, enabled: false },
         kimi: { configured: false, enabled: false }
       };
     }
+  }
+  
+  // 保持向后兼容
+  static async getConfigStatus(): Promise<{
+    twitter: { configured: boolean; enabled: boolean };
+    kimi: { configured: boolean; enabled: boolean };
+  }> {
+    return this.getStatus();
   }
 }
 
@@ -107,7 +142,21 @@ export class KimiService {
         prompt: params.prompt
       });
 
-      return response.data;
+      console.log('Kimi API响应:', response.data);
+
+      // 检查响应是否成功
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Kimi情绪分析失败');
+      }
+
+      // 返回分析结果，现在数据直接在response.data中，不再嵌套在data字段中
+      return {
+        sentiment: response.data.sentiment,
+        score: response.data.score,
+        confidence: response.data.confidence,
+        keywords: response.data.keywords,
+        analysis: response.data.analysis
+      };
     } catch (error) {
       console.error('Kimi API 调用失败:', error);
       throw new Error('Kimi情绪分析失败，请稍后重试');

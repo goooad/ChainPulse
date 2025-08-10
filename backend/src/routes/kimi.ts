@@ -61,7 +61,11 @@ router.post('/analyze', async (req, res) => {
         
         return res.json({
           success: true,
-          data: mockAnalysis,
+          sentiment: mockAnalysis.sentiment,
+          score: mockAnalysis.score,
+          confidence: mockAnalysis.confidence,
+          keywords: mockAnalysis.keywords,
+          analysis: mockAnalysis.analysis,
           isMockData: true,
           message: '由于API限制(500)，返回模拟分析数据'
         })
@@ -74,10 +78,10 @@ router.post('/analyze', async (req, res) => {
       })
     }
 
-    const responseData = await response.json()
-    console.log('Kimi API响应数据:', JSON.stringify(responseData, null, 2))
+    const apiResponseData = await response.json()
+    console.log('Kimi API响应数据:', JSON.stringify(apiResponseData, null, 2))
     
-    const content = responseData.choices?.[0]?.message?.content
+    const content = apiResponseData.choices?.[0]?.message?.content
 
     if (!content) {
       return res.status(500).json({
@@ -100,15 +104,20 @@ router.post('/analyze', async (req, res) => {
       analysisResult = fallbackAnalysis(content)
     }
 
+    // 确保返回的数据结构与前端期望一致
+    const responseData = {
+      sentiment: analysisResult.sentiment || 'neutral',
+      score: analysisResult.score || 0,
+      confidence: analysisResult.confidence || 0.5,
+      keywords: analysisResult.keywords || [],
+      analysis: analysisResult.analysis || content
+    };
+
+    console.log('返回给前端的数据:', JSON.stringify(responseData, null, 2));
+
     res.json({
       success: true,
-      data: {
-        sentiment: analysisResult.sentiment || 'neutral',
-        score: analysisResult.score || 0,
-        confidence: analysisResult.confidence || 0.5,
-        keywords: analysisResult.keywords || [],
-        analysis: analysisResult.analysis || content
-      }
+      ...responseData  // 直接展开数据，而不是嵌套在data字段中
     })
 
   } catch (error: any) {

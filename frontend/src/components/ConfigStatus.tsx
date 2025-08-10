@@ -18,6 +18,7 @@ export const ConfigStatus: React.FC<ConfigStatusProps> = ({ className = '' }) =>
     const fetchConfig = async () => {
       try {
         const status = await ConfigService.getConfigStatus();
+        console.log('前端获取到的配置状态:', status);
         setConfig(status);
       } catch (error) {
         console.error('获取配置状态失败:', error);
@@ -52,8 +53,9 @@ export const ConfigStatus: React.FC<ConfigStatusProps> = ({ className = '' }) =>
   };
 
   const getStatusText = (configured: boolean, enabled: boolean) => {
-    if (configured && enabled) return '已配置并启用';
-    if (configured && !enabled) return '已配置但未启用';
+    if (!configured) return '未配置';
+    if (configured && enabled) return '已配置 - 真实API';
+    if (configured && !enabled) return '已配置 - 模拟API';
     return '未配置';
   };
 
@@ -77,7 +79,8 @@ export const ConfigStatus: React.FC<ConfigStatusProps> = ({ className = '' }) =>
         </div>
       </div>
       
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .config-status {
           background: #f8f9fa;
           border: 1px solid #e9ecef;
@@ -129,7 +132,8 @@ export const ConfigStatus: React.FC<ConfigStatusProps> = ({ className = '' }) =>
         .error {
           color: #dc3545;
         }
-      `}</style>
+        `
+      }} />
     </div>
   );
 };
