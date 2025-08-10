@@ -63,13 +63,75 @@ router.get('/search', async (req, res) => {
       })
     }
 
-    // 检查429错误（请求过于频繁）
+    // 检查429错误（请求过于频繁）- 返回模拟数据
     if (response.status === 429) {
-      console.log('Twitter API请求频率限制:', responseData)
-      return res.status(429).json({
-        success: false,
-        error: 'Twitter API请求过于频繁，请稍后重试',
-        details: responseData
+      console.log('Twitter API请求频率限制，返回模拟数据:', responseData)
+      const mockData = {
+        tweets: [
+          {
+            id: '1',
+            text: `${query} floor price is pumping! 🚀 This collection never disappoints. #NFT`,
+            author: 'nft_trader_1',
+            created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+            metrics: {
+              retweet_count: 45,
+              like_count: 128,
+              reply_count: 23
+            }
+          },
+          {
+            id: '2',
+            text: `Not sure about ${query} anymore... prices are too volatile and the roadmap seems unclear 😕`,
+            author: 'crypto_skeptic',
+            created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+            metrics: {
+              retweet_count: 12,
+              like_count: 34,
+              reply_count: 67
+            }
+          },
+          {
+            id: '3',
+            text: `${query} community is still strong! Great utility and amazing art. Holding for long term 💎🙌`,
+            author: 'diamond_hands',
+            created_at: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+            metrics: {
+              retweet_count: 89,
+              like_count: 256,
+              reply_count: 45
+            }
+          },
+          {
+            id: '4',
+            text: `${query} partnership with major brands is bullish! This is just the beginning 🔥`,
+            author: 'nft_bull',
+            created_at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+            metrics: {
+              retweet_count: 156,
+              like_count: 423,
+              reply_count: 78
+            }
+          },
+          {
+            id: '5',
+            text: `${query} gas fees are killing me... maybe it's time to look at other chains 😤`,
+            author: 'gas_victim',
+            created_at: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
+            metrics: {
+              retweet_count: 23,
+              like_count: 67,
+              reply_count: 34
+            }
+          }
+        ],
+        total: 1247
+      }
+      
+      return res.json({
+        success: true,
+        data: mockData,
+        isMockData: true,
+        message: '由于API限制(429)，返回模拟数据'
       })
     }
 
@@ -201,13 +263,75 @@ router.post('/search', async (req, res) => {
       })
     }
 
-    // 检查429错误（请求过于频繁）
+    // 检查429错误（请求过于频繁）- 返回模拟数据
     if (response.status === 429) {
-      console.log('Twitter API请求频率限制:', responseData)
-      return res.status(429).json({
-        success: false,
-        error: 'Twitter API请求过于频繁，请稍后重试',
-        details: responseData
+      console.log('Twitter API请求频率限制，返回模拟数据:', responseData)
+      const mockData = {
+        tweets: [
+          {
+            id: '1',
+            text: `${query} floor price is pumping! 🚀 This collection never disappoints. #NFT`,
+            author: 'nft_trader_1',
+            created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+            metrics: {
+              retweet_count: 45,
+              like_count: 128,
+              reply_count: 23
+            }
+          },
+          {
+            id: '2',
+            text: `Not sure about ${query} anymore... prices are too volatile and the roadmap seems unclear 😕`,
+            author: 'crypto_skeptic',
+            created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+            metrics: {
+              retweet_count: 12,
+              like_count: 34,
+              reply_count: 67
+            }
+          },
+          {
+            id: '3',
+            text: `${query} community is still strong! Great utility and amazing art. Holding for long term 💎🙌`,
+            author: 'diamond_hands',
+            created_at: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+            metrics: {
+              retweet_count: 89,
+              like_count: 256,
+              reply_count: 45
+            }
+          },
+          {
+            id: '4',
+            text: `${query} partnership with major brands is bullish! This is just the beginning 🔥`,
+            author: 'nft_bull',
+            created_at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+            metrics: {
+              retweet_count: 156,
+              like_count: 423,
+              reply_count: 78
+            }
+          },
+          {
+            id: '5',
+            text: `${query} gas fees are killing me... maybe it's time to look at other chains 😤`,
+            author: 'gas_victim',
+            created_at: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
+            metrics: {
+              retweet_count: 23,
+              like_count: 67,
+              reply_count: 34
+            }
+          }
+        ],
+        total: 1247
+      }
+      
+      return res.json({
+        success: true,
+        data: mockData,
+        isMockData: true,
+        message: '由于API限制(429)，返回模拟数据'
       })
     }
 
