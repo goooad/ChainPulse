@@ -274,6 +274,50 @@ export class NFTSentimentService {
   }
 }
 
+// 价格监控服务
+export class PriceService {
+  static async getPriceData(): Promise<any> {
+    try {
+      const response = await api.get('/price/monitor');
+      if (!response.data.success) {
+        throw new Error(response.data.error || '获取价格数据失败');
+      }
+      return response.data.data;
+    } catch (error: any) {
+      console.error('获取价格数据失败:', error);
+      throw new Error('获取价格数据失败，请稍后重试');
+    }
+  }
+
+  static async getPriceHistory(symbol: string, timeRange: string = '24h'): Promise<any> {
+    try {
+      const response = await api.get(`/price/history/${symbol}`, {
+        params: { timeRange }
+      });
+      if (!response.data.success) {
+        throw new Error(response.data.error || '获取价格历史失败');
+      }
+      return response.data.data;
+    } catch (error: any) {
+      console.error('获取价格历史失败:', error);
+      throw new Error('获取价格历史失败，请稍后重试');
+    }
+  }
+
+  static async addPriceAlert(alert: { symbol: string; targetPrice: number; type: string }): Promise<any> {
+    try {
+      const response = await api.post('/price/alert', alert);
+      if (!response.data.success) {
+        throw new Error(response.data.error || '设置价格预警失败');
+      }
+      return response.data.data;
+    } catch (error: any) {
+      console.error('设置价格预警失败:', error);
+      throw new Error('设置价格预警失败，请稍后重试');
+    }
+  }
+}
+
 // 错误处理
 api.interceptors.response.use(
   (response) => response,

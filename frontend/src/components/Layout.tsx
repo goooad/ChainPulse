@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Shield, TrendingUp, Heart, Settings, BarChart3 } from 'lucide-react'
+import { Shield, Users, Heart, Settings, BarChart3 } from 'lucide-react'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -13,7 +13,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: '仪表板', href: '/', icon: BarChart3 },
     { name: '链上防火墙', href: '/firewall', icon: Shield },
     { name: 'NFT情绪', href: '/nft-sentiment', icon: Heart },
-    { name: '价格监控', href: '/price-monitor', icon: TrendingUp },
+    { name: '地址分析', href: '/address-analysis', icon: Users },
     { name: '设置', href: '/settings', icon: Settings },
   ]
 

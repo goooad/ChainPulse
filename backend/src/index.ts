@@ -2,13 +2,22 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import dotenv from 'dotenv'
+import path from 'path'
 import { createServer } from 'http'
 import { WebSocketServer } from 'ws'
+
+// 确保正确加载.env文件
+dotenv.config({ path: path.join(__dirname, '../.env') })
+
+// 验证环境变量加载
+console.log('🔑 [启动] 环境变量检查:')
+console.log('  - ETHERSCAN_API_KEY:', process.env.ETHERSCAN_API_KEY ? '已加载' : '未加载')
+console.log('  - HTTPS_PROXY:', process.env.HTTPS_PROXY ? '已配置' : '未配置')
 
 // 导入路由
 import firewallRoutes from './routes/firewall'
 import sentimentRoutes from './routes/sentiment'
-import priceRoutes from './routes/price'
+import addressRoutes from './routes/address'
 import settingsRoutes from './routes/settings'
 import twitterRoutes from './routes/twitter'
 import kimiRoutes from './routes/kimi'
@@ -16,10 +25,7 @@ import kimiRoutes from './routes/kimi'
 // 导入服务
 import { FirewallService } from './services/FirewallService'
 import { SentimentService } from './services/SentimentService'
-import { PriceService } from './services/PriceService'
 import { WebSocketService } from './services/WebSocketService'
-
-dotenv.config()
 
 const app = express()
 const server = createServer(app)
@@ -32,6 +38,7 @@ app.use(cors({
     'http://localhost:3000',
     'http://localhost:3001', 
     'http://localhost:3002',
+    'http://localhost:3003',
     process.env.CORS_ORIGIN || 'http://localhost:3000'
   ],
   credentials: true
@@ -42,7 +49,7 @@ app.use(express.urlencoded({ extended: true }))
 // 路由
 app.use('/api/firewall', firewallRoutes)
 app.use('/api/sentiment', sentimentRoutes)
-app.use('/api/price', priceRoutes)
+app.use('/api/address', addressRoutes)
 app.use('/api/settings', settingsRoutes)
 app.use('/api/twitter', twitterRoutes)
 app.use('/api/kimi', kimiRoutes)
@@ -87,12 +94,10 @@ const wsService = new WebSocketService(wss)
 // 启动服务
 const firewallService = new FirewallService()
 const sentimentService = new SentimentService()
-const priceService = new PriceService()
 
 // 启动实时监控
 // firewallService.startMonitoring()
 //sentimentService.startMonitoring()
-//priceService.startMonitoring()
 
 const PORT = process.env.PORT || 3001
 
@@ -102,7 +107,7 @@ server.listen(PORT, () => {
   console.log(`🔌 WebSocket服务: ws://localhost:${PORT}`)
   console.log(`🛡️  防火墙监控: 已启动`)
   console.log(`📊 情绪分析: 已启动`)
-  console.log(`💰 价格监控: 已启动`)
+  console.log(`🔍 地址分析: 已启动`)
 })
 
 // 优雅关闭

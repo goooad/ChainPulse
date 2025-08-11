@@ -92,7 +92,7 @@ const NFTSentiment: React.FC = () => {
     <div className="p-6 max-w-6xl mx-auto">
       {/* 页面标题 - 更加醒目 */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-4 mb-4">
+        <div className="inline-flex items-center gap-4 mb-6">
           <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-lg">
             <Heart className="w-8 h-8 text-white" />
           </div>
@@ -103,9 +103,11 @@ const NFTSentiment: React.FC = () => {
             <TrendingUp className="w-8 h-8 text-white" />
           </div>
         </div>
-        <p className="text-xl font-bold text-gray-700 bg-gradient-to-r from-gray-100 to-gray-200 px-8 py-4 rounded-2xl shadow-lg inline-block border-2 border-gray-300">
-          🚀 基于 Twitter 数据分析 NFT 项目的市场情绪 📊
-        </p>
+        <div className="mt-4">
+          <p className="text-xl font-bold text-gray-700 bg-gradient-to-r from-gray-100 to-gray-200 px-8 py-4 rounded-2xl shadow-lg inline-block border-2 border-gray-300">
+            🚀 基于 Twitter 数据分析 NFT 项目的市场情绪 📊
+          </p>
+        </div>
       </div>
 
       {/* 搜索区域 */}
