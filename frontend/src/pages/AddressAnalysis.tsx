@@ -391,62 +391,88 @@ const AddressAnalysis: React.FC = () => {
             <CardContent className="space-y-4">
               {/* ETH */}
               {activeTab === 'eth' && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {getPaginatedData(result.ethTransactions || []).map((tx, idx) => (
-                    <div key={tx.hash} className="rounded-lg border border-slate-200 bg-white p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">#{(currentPage - 1) * itemsPerPage + idx + 1}</Badge>
-                          <span className="text-xs text-slate-500">{formatTimestamp(tx.timeStamp)}</span>
+                    <div key={tx.hash} className="group relative overflow-hidden rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300">
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-400/10 to-transparent rounded-bl-full"></div>
+                      
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-lg text-sm font-bold">
+                            #{(currentPage - 1) * itemsPerPage + idx + 1}
+                          </div>
+                          <div className="flex items-center gap-2 px-3 py-1 bg-white/70 rounded-full">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                            <span className="text-xs font-medium text-blue-700">{formatTimestamp(tx.timeStamp)}</span>
+                          </div>
                         </div>
                         <a
-                          className="text-sm text-sky-600 hover:text-sky-700"
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
                           href={`https://etherscan.io/tx/${tx.hash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          查看详情 →
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          查看详情
                         </a>
                       </div>
-                      <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                        <div>
-                          <div className="text-slate-500">发送方</div>
-                          <div className="font-mono">{truncateAddress(tx.from)}</div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
+                          <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">发送方</div>
+                          <div className="font-mono text-sm font-medium text-gray-800">{tx.from.slice(0, 8)}...{tx.from.slice(-6)}</div>
                         </div>
-                        <div>
-                          <div className="text-slate-500">接收方</div>
-                          <div className="font-mono">{truncateAddress(tx.to)}</div>
+                        <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
+                          <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">接收方</div>
+                          <div className="font-mono text-sm font-medium text-gray-800">{tx.to.slice(0, 8)}...{tx.to.slice(-6)}</div>
                         </div>
-                        <div>
-                          <div className="text-slate-500">金额</div>
-                          <div className="font-semibold text-slate-900">{formatValue(tx.value, '18')} ETH</div>
+                        <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
+                          <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">金额</div>
+                          <div className="font-bold text-lg text-blue-700">{formatValue(tx.value, '18')} ETH</div>
                         </div>
                       </div>
                     </div>
                   ))}
                   {(!result.ethTransactions || result.ethTransactions.length === 0) && (
-                    <div className="text-center py-10 text-slate-500">暂无 ETH 交易</div>
+                    <div className="text-center py-16">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 font-medium">暂无 ETH 交易记录</p>
+                    </div>
                   )}
                   
                   {/* 分页控件 */}
                   {result.ethTransactions && result.ethTransactions.length > itemsPerPage && (
-                    <div className="flex justify-center items-center gap-2 mt-6">
+                    <div className="flex justify-center items-center gap-3 mt-8 p-4 bg-white rounded-lg border border-gray-200">
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
                         上一页
                       </button>
-                      <span className="text-sm text-gray-600">
-                        第 {currentPage} 页，共 {getTotalPages(result.ethTransactions)} 页
-                      </span>
+                      <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
+                        <span className="text-sm font-medium text-blue-700">
+                          第 {currentPage} 页，共 {getTotalPages(result.ethTransactions)} 页
+                        </span>
+                      </div>
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === getTotalPages(result.ethTransactions)}
-                        className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         下一页
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </button>
                     </div>
                   )}
@@ -455,36 +481,49 @@ const AddressAnalysis: React.FC = () => {
 
               {/* Token */}
               {activeTab === 'token' && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {getPaginatedData(result.tokenTransactions || []).map((tx, idx) => (
-                    <div key={tx.hash} className="rounded-lg border border-slate-200 bg-white p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">#{(currentPage - 1) * itemsPerPage + idx + 1}</Badge>
-                          <Badge>{tx.tokenSymbol}</Badge>
-                          <span className="text-xs text-slate-500">{formatTimestamp(tx.timeStamp)}</span>
+                    <div key={tx.hash} className="group relative overflow-hidden rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-green-50 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-emerald-300">
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-400/10 to-transparent rounded-bl-full"></div>
+                      
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center w-8 h-8 bg-emerald-600 text-white rounded-lg text-sm font-bold">
+                            #{(currentPage - 1) * itemsPerPage + idx + 1}
+                          </div>
+                          <div className="px-3 py-1 bg-emerald-600 text-white rounded-full text-xs font-bold">
+                            {tx.tokenSymbol || 'TOKEN'}
+                          </div>
+                          <div className="flex items-center gap-2 px-3 py-1 bg-white/70 rounded-full">
+                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                            <span className="text-xs font-medium text-emerald-700">{formatTimestamp(tx.timeStamp)}</span>
+                          </div>
                         </div>
                         <a
-                          className="text-sm text-sky-600 hover:text-sky-700"
+                          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm"
                           href={`https://etherscan.io/tx/${tx.hash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          查看详情 →
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          查看详情
                         </a>
                       </div>
-                      <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                        <div>
-                          <div className="text-slate-500">发送方</div>
-                          <div className="font-mono">{truncateAddress(tx.from)}</div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white/60 rounded-lg p-3 border border-emerald-100">
+                          <div className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">发送方</div>
+                          <div className="font-mono text-sm font-medium text-gray-800">{tx.from.slice(0, 8)}...{tx.from.slice(-6)}</div>
                         </div>
-                        <div>
-                          <div className="text-slate-500">接收方</div>
-                          <div className="font-mono">{truncateAddress(tx.to)}</div>
+                        <div className="bg-white/60 rounded-lg p-3 border border-emerald-100">
+                          <div className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">接收方</div>
+                          <div className="font-mono text-sm font-medium text-gray-800">{tx.to.slice(0, 8)}...{tx.to.slice(-6)}</div>
                         </div>
-                        <div>
-                          <div className="text-slate-500">金额</div>
-                          <div className="font-semibold text-emerald-700">
+                        <div className="bg-white/60 rounded-lg p-3 border border-emerald-100">
+                          <div className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">金额</div>
+                          <div className="font-bold text-lg text-emerald-700">
                             {formatValue(tx.value, tx.tokenDecimal || '18')} {tx.tokenSymbol}
                           </div>
                         </div>
@@ -492,28 +531,43 @@ const AddressAnalysis: React.FC = () => {
                     </div>
                   ))}
                   {(!result.tokenTransactions || result.tokenTransactions.length === 0) && (
-                    <div className="text-center py-10 text-slate-500">暂无 代币 交易</div>
+                    <div className="text-center py-16">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 font-medium">暂无代币交易记录</p>
+                    </div>
                   )}
                   
                   {/* 分页控件 */}
                   {result.tokenTransactions && result.tokenTransactions.length > itemsPerPage && (
-                    <div className="flex justify-center items-center gap-2 mt-6">
+                    <div className="flex justify-center items-center gap-3 mt-8 p-4 bg-white rounded-lg border border-gray-200">
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
                         上一页
                       </button>
-                      <span className="text-sm text-gray-600">
-                        第 {currentPage} 页，共 {getTotalPages(result.tokenTransactions)} 页
-                      </span>
+                      <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-lg">
+                        <span className="text-sm font-medium text-emerald-700">
+                          第 {currentPage} 页，共 {getTotalPages(result.tokenTransactions)} 页
+                        </span>
+                      </div>
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === getTotalPages(result.tokenTransactions)}
-                        className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         下一页
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </button>
                     </div>
                   )}
@@ -522,62 +576,88 @@ const AddressAnalysis: React.FC = () => {
 
               {/* Internal */}
               {activeTab === 'internal' && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {getPaginatedData(result.internalTransactions || []).map((tx, idx) => (
-                    <div key={tx.hash} className="rounded-lg border border-slate-200 bg-white p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">#{(currentPage - 1) * itemsPerPage + idx + 1}</Badge>
-                          <span className="text-xs text-slate-500">{formatTimestamp(tx.timeStamp)}</span>
+                    <div key={tx.hash} className="group relative overflow-hidden rounded-xl border border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-purple-300">
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-400/10 to-transparent rounded-bl-full"></div>
+                      
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center w-8 h-8 bg-purple-600 text-white rounded-lg text-sm font-bold">
+                            #{(currentPage - 1) * itemsPerPage + idx + 1}
+                          </div>
+                          <div className="flex items-center gap-2 px-3 py-1 bg-white/70 rounded-full">
+                            <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                            <span className="text-xs font-medium text-purple-700">{formatTimestamp(tx.timeStamp)}</span>
+                          </div>
                         </div>
                         <a
-                          className="text-sm text-sky-600 hover:text-sky-700"
+                          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors shadow-sm"
                           href={`https://etherscan.io/tx/${tx.hash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          查看详情 →
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          查看详情
                         </a>
                       </div>
-                      <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                        <div>
-                          <div className="text-slate-500">发送方</div>
-                          <div className="font-mono">{truncateAddress(tx.from)}</div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
+                          <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1">发送方</div>
+                          <div className="font-mono text-sm font-medium text-gray-800">{tx.from.slice(0, 8)}...{tx.from.slice(-6)}</div>
                         </div>
-                        <div>
-                          <div className="text-slate-500">接收方</div>
-                          <div className="font-mono">{truncateAddress(tx.to)}</div>
+                        <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
+                          <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1">接收方</div>
+                          <div className="font-mono text-sm font-medium text-gray-800">{tx.to.slice(0, 8)}...{tx.to.slice(-6)}</div>
                         </div>
-                        <div>
-                          <div className="text-slate-500">金额</div>
-                          <div className="font-semibold text-indigo-700">{formatValue(tx.value, '18')} ETH</div>
+                        <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
+                          <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1">金额</div>
+                          <div className="font-bold text-lg text-purple-700">{formatValue(tx.value, '18')} ETH</div>
                         </div>
                       </div>
                     </div>
                   ))}
                   {(!result.internalTransactions || result.internalTransactions.length === 0) && (
-                    <div className="text-center py-10 text-slate-500">暂无 内部 交易</div>
+                    <div className="text-center py-16">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 font-medium">暂无内部交易记录</p>
+                    </div>
                   )}
                   
                   {/* 分页控件 */}
                   {result.internalTransactions && result.internalTransactions.length > itemsPerPage && (
-                    <div className="flex justify-center items-center gap-2 mt-6">
+                    <div className="flex justify-center items-center gap-3 mt-8 p-4 bg-white rounded-lg border border-gray-200">
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
                         上一页
                       </button>
-                      <span className="text-sm text-gray-600">
-                        第 {currentPage} 页，共 {getTotalPages(result.internalTransactions)} 页
-                      </span>
+                      <div className="flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-lg">
+                        <span className="text-sm font-medium text-purple-700">
+                          第 {currentPage} 页，共 {getTotalPages(result.internalTransactions)} 页
+                        </span>
+                      </div>
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === getTotalPages(result.internalTransactions)}
-                        className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         下一页
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </button>
                     </div>
                   )}
@@ -587,26 +667,67 @@ const AddressAnalysis: React.FC = () => {
           </Card>
         )}
 
-        {/* AI 智能分析 - 简化版本，放在交易记录详情下面 */}
+        {/* AI 智能分析 - 美化版本，放在交易记录详情下面 */}
         {result && result.aiAnalysis && (
-          <Card className="border-slate-200 shadow-sm mt-6">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                AI 智能分析
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-gray-50 rounded-lg p-4 border">
-                <div className="text-sm text-gray-600 mb-2">基于 Kimi AI 的分析报告</div>
-                <pre className="whitespace-pre-wrap text-sm leading-6 text-gray-800">
-                  {result.aiAnalysis}
-                </pre>
+          <div className="mt-8">
+            <div className="relative overflow-hidden rounded-2xl border-2 border-gradient-to-r from-indigo-200 to-purple-200 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 shadow-xl">
+              {/* 装饰性背景元素 */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-400/10 to-purple-400/10 rounded-full -translate-y-16 translate-x-16"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-pink-400/10 to-indigo-400/10 rounded-full translate-y-12 -translate-x-12"></div>
+              
+              {/* 头部 */}
+              <div className="relative p-6 border-b border-indigo-200/50">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                      🤖 AI 智能分析
+                    </div>
+                    <div className="text-sm text-indigo-600 font-medium mt-1">
+                      基于 Kimi AI 的深度分析报告
+                    </div>
+                  </div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+              
+              {/* 内容区域 */}
+              <div className="relative p-6">
+                <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-white/50 shadow-lg p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">分析结果</span>
+                  </div>
+                  
+                  <div className="prose prose-sm max-w-none">
+                    <div className="bg-gradient-to-r from-gray-50 to-indigo-50 rounded-lg p-4 border-l-4 border-indigo-500">
+                      <pre className="whitespace-pre-wrap text-sm leading-7 text-gray-800 font-medium">
+                        {result.aiAnalysis}
+                      </pre>
+                    </div>
+                  </div>
+                  
+                  {/* 底部装饰 */}
+                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      分析完成时间: {new Date().toLocaleString('zh-CN')}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

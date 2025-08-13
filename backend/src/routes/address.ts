@@ -1,7 +1,6 @@
 import express from 'express'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch from 'node-fetch'
-
 const router = express.Router()
 
 // 健康检查接口
@@ -134,6 +133,32 @@ function formatTimestamp(timestamp: string): string {
 // 工具函数：检查是否为合约地址
 function isContract(contractInfo: any): boolean {
   return contractInfo && contractInfo.SourceCode && contractInfo.SourceCode.length > 0
+}
+
+// 工具函数：获取合约代币信息
+async function getContractTokenInfo(address: string): Promise<{symbol?: string, name?: string}> {
+  try {
+    // 查询该合约地址的代币交易记录（作为合约地址）
+    const contractTokenTxData: any = await fetchEtherscanData('account', 'tokentx', { 
+      contractaddress: address,  // 注意这里用contractaddress而不是address
+      page: 1, 
+      offset: 1, 
+      sort: 'desc' 
+    })
+    
+    if (contractTokenTxData?.result && contractTokenTxData.result.length > 0) {
+      const tokenInfo = contractTokenTxData.result[0]
+      return {
+        symbol: tokenInfo.tokenSymbol,
+        name: tokenInfo.tokenName
+      }
+    }
+    
+    return {}
+  } catch (error) {
+    console.error('❌ [获取合约代币信息失败]:', error)
+    return {}
+  }
 }
 
 // 地址分析API
@@ -307,6 +332,7 @@ ${analysisData.recentTokenTx.map((tx: any) => `- ${tx.timestamp}: ${tx.tokenSymb
         contractInfo: isContractAddress ? {
           isContract: true,
           contractName: contractInfo.ContractName || 'Unknown Contract',
+          contractSymbol: tokenTransactions.length > 0 ? tokenTransactions[0].tokenSymbol : undefined,
           contractCreator: contractInfo.ContractCreator || '',
           contractCreationTxHash: contractInfo.TxHash || '',
           sourceCode: contractInfo.SourceCode ? 'Verified' : 'Not Verified',

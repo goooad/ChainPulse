@@ -48,6 +48,7 @@ interface InternalTransaction {
 interface ContractInfo {
   isContract: boolean
   contractName?: string
+  contractSymbol?: string
   contractCreator?: string
   contractCreationTxHash?: string
   sourceCode?: string
@@ -108,12 +109,85 @@ export class AddressAnalysisService {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
+  // 获取代币信息（符号、名称等）
+  private async getTokenInfo(contractAddress: string): Promise<{symbol?: string, name?: string}> {
+    try {
+      console.log(`🔍 [getTokenInfo] 开始获取合约地址 ${contractAddress} 的代币信息`)
+      
+      // 方法1: 通过合约地址查询代币交易记录
+      const tokenTxUrl = `${this.ETHERSCAN_BASE_URL}?module=account&action=tokentx&contractaddress=${contractAddress}&page=1&offset=10&sort=desc&apikey=${this.ETHERSCAN_API_KEY}`
+      console.log(`📡 [getTokenInfo] 请求URL: ${tokenTxUrl}`)
+      
+      const response = await this.fetchWithProxy(tokenTxUrl)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json() as any
+      console.log(`📊 [getTokenInfo] API响应状态: ${data.status}, 消息: ${data.message}`)
+      console.log(`📋 [getTokenInfo] 结果数量: ${data.result?.length || 0}`)
+      
+      if (data.result && data.result.length > 0) {
+        console.log(`📋 [getTokenInfo] 第一条交易记录:`, JSON.stringify(data.result[0], null, 2))
+      }
+      
+      if (data.status === '1' && data.result && data.result.length > 0) {
+        const tokenInfo = data.result[0]
+        const result = {
+          symbol: tokenInfo.tokenSymbol || undefined,
+          name: tokenInfo.tokenName || undefined
+        }
+        console.log(`✅ [getTokenInfo] 成功获取代币信息:`, result)
+        return result
+      }
+
+      // 方法2: 如果没有找到交易记录，尝试通过地址本身查询（可能是持有者地址）
+      console.log(`🔄 [getTokenInfo] 未找到合约交易记录，尝试查询地址持有的代币`)
+      const holderTxUrl = `${this.ETHERSCAN_BASE_URL}?module=account&action=tokentx&address=${contractAddress}&page=1&offset=10&sort=desc&apikey=${this.ETHERSCAN_API_KEY}`
+      console.log(`📡 [getTokenInfo] 持有者查询URL: ${holderTxUrl}`)
+      
+      await this.delay(1000) // API限流延迟
+      const holderResponse = await this.fetchWithProxy(holderTxUrl)
+      
+      if (!holderResponse.ok) {
+        throw new Error(`HTTP ${holderResponse.status}: ${holderResponse.statusText}`)
+      }
+
+      const holderData = await holderResponse.json() as any
+      console.log(`📊 [getTokenInfo] 持有者查询响应状态: ${holderData.status}, 消息: ${holderData.message}`)
+      console.log(`📋 [getTokenInfo] 持有者查询结果数量: ${holderData.result?.length || 0}`)
+      
+      if (holderData.status === '1' && holderData.result && holderData.result.length > 0) {
+        // 查找与查询地址相关的代币交易
+        const relevantTx = holderData.result.find((tx: any) => 
+          tx.contractAddress?.toLowerCase() === contractAddress.toLowerCase()
+        )
+        
+        if (relevantTx) {
+          const result = {
+            symbol: relevantTx.tokenSymbol || undefined,
+            name: relevantTx.tokenName || undefined
+          }
+          console.log(`✅ [getTokenInfo] 通过持有者查询获取代币信息:`, result)
+          return result
+        }
+      }
+
+      console.log(`❌ [getTokenInfo] 未找到代币信息`)
+      return {}
+    } catch (error) {
+      console.error('💥 [getTokenInfo] 获取代币信息失败:', error)
+      return {}
+    }
+  }
+
   // 检查地址是否为合约
   private async checkIfContract(address: string): Promise<ContractInfo> {
     const url = `${this.ETHERSCAN_BASE_URL}?module=contract&action=getsourcecode&address=${address}&apikey=${this.ETHERSCAN_API_KEY}`
     
     try {
-      console.log(`🔍 [地址分析] 检查合约信息: ${address}`)
+      console.log(`🔍 [checkIfContract] 检查合约信息: ${address}`)
       const response = await this.fetchWithProxy(url)
       
       if (!response.ok) {
@@ -121,30 +195,49 @@ export class AddressAnalysisService {
       }
 
       const data = await response.json() as any
+      console.log(`📊 [checkIfContract] API响应状态: ${data.status}, 消息: ${data.message}`)
       
       if (data.status === '0') {
-        console.log(`⚠️ [地址分析] 获取合约信息失败: ${data.message}`)
+        console.log(`⚠️ [checkIfContract] 获取合约信息失败: ${data.message}`)
         return { isContract: false }
       }
 
       const result = data.result[0]
+      console.log(`📋 [checkIfContract] 合约源码检查结果:`, {
+        ContractName: result.ContractName,
+        SourceCode: result.SourceCode ? '有源码' : '无源码',
+        ABI: result.ABI !== 'Contract source code not verified' ? '有ABI' : '无ABI'
+      })
+      
       const isContract = result.SourceCode !== '' || result.ABI !== 'Contract source code not verified'
       
       if (isContract) {
-        console.log(`📋 [地址分析] 发现合约: ${result.ContractName || '未命名合约'}`)
-        return {
+        console.log(`✅ [checkIfContract] 发现合约: ${result.ContractName || '未命名合约'}`)
+        
+        // 尝试获取代币信息
+        console.log(`🔄 [checkIfContract] 开始获取代币信息...`)
+        await this.delay(1000) // API限流延迟
+        const tokenInfo = await this.getTokenInfo(address)
+        console.log(`📋 [checkIfContract] 代币信息获取结果:`, tokenInfo)
+        
+        const contractInfo = {
           isContract: true,
-          contractName: result.ContractName || '未知合约',
+          contractName: result.ContractName || tokenInfo.name || '未知合约',
+          contractSymbol: tokenInfo.symbol || undefined,
           contractCreator: result.ContractCreator,
           contractCreationTxHash: result.TxHash,
           sourceCode: result.SourceCode ? '已验证' : '未验证',
           abi: result.ABI !== 'Contract source code not verified' ? '可用' : '不可用'
         }
+        
+        console.log(`✅ [checkIfContract] 最终合约信息:`, contractInfo)
+        return contractInfo
       }
 
+      console.log(`❌ [checkIfContract] 不是合约地址`)
       return { isContract: false }
     } catch (error) {
-      console.error('❌ [地址分析] 检查合约信息失败:', error)
+      console.error('💥 [checkIfContract] 检查合约信息失败:', error)
       return { isContract: false }
     }
   }
