@@ -66,7 +66,7 @@ const defaultSettings: SettingsState = {
 }
 
 const Settings: React.FC = () => {
-  const { theme, setTheme } = useTheme()
+  const { setTheme } = useTheme()
   const [settings, setSettings] = useState<SettingsState>(defaultSettings)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
 

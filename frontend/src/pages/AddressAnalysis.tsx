@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
 
 interface Transaction {
   hash: string;
@@ -130,11 +129,6 @@ const AddressAnalysis: React.FC = () => {
     const num = Number(value) / divisor;
     const formatted = isFinite(num) ? num.toFixed(6) : '0';
     return parseFloat(formatted).toString();
-  };
-
-  const truncateAddress = (addr: string): string => {
-    if (!addr) return '';
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
   // 分页功能
