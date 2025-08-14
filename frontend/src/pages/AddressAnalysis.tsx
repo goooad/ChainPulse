@@ -159,7 +159,7 @@ const AddressAnalysis: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 text-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 text-slate-900 dark:text-gray-100">
       {/* 顶部横幅 - 参考NFT情绪页面风格 */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-4 mb-6">
@@ -178,7 +178,7 @@ const AddressAnalysis: React.FC = () => {
           </div>
         </div>
         <div className="mt-4">
-          <p className="text-lg font-bold text-gray-700 bg-gradient-to-r from-gray-100 to-gray-200 px-6 py-3 rounded-2xl shadow-lg inline-block border-2 border-gray-300">
+          <p className="text-lg font-bold text-gray-700 dark:text-gray-300 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 px-6 py-3 rounded-2xl shadow-lg inline-block border-2 border-gray-300 dark:border-gray-500">
             🔍 输入以太坊地址，快速拉取历史交易并进行分类与AI分析 📊
           </p>
         </div>
@@ -186,7 +186,7 @@ const AddressAnalysis: React.FC = () => {
 
       <div className="p-6 max-w-6xl mx-auto">
         {/* 输入区域 - 参考NFT情绪页面风格 */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
           
           <div className="space-y-4">
             <div className="flex flex-col md:flex-row gap-4">
@@ -215,7 +215,7 @@ const AddressAnalysis: React.FC = () => {
             </div>
 
             {/* 查询条数选择 */}
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
+            <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700">📊 查询条数:</span>
                 <div className="flex items-center gap-4 text-sm">
@@ -238,7 +238,7 @@ const AddressAnalysis: React.FC = () => {
 
             {/* 常用地址快速选择 */}
             <div className="flex flex-wrap gap-3">
-              <span className="text-sm font-medium text-gray-700 mr-2 flex items-center">🔥 常用地址:</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2 flex items-center">🔥 常用地址:</span>
               {QUICK_ADDRS.map((item) => (
                 <button
                   key={item.name}
@@ -246,7 +246,7 @@ const AddressAnalysis: React.FC = () => {
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                     address === item.address
                       ? 'bg-blue-600 text-white shadow-lg transform scale-105'
-                      : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200 hover:bg-gradient-to-r hover:from-blue-100 hover:to-indigo-100 hover:shadow-md hover:transform hover:scale-105'
+                      : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-800/30 dark:to-indigo-800/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-600/50 hover:bg-gradient-to-r hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-700/40 dark:hover:to-indigo-700/40 hover:shadow-md hover:transform hover:scale-105'
                   }`}
                 >
                   {item.name}

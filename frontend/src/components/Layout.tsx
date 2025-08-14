@@ -10,9 +10,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation()
 
   const navigation = [
-    { name: '仪表板', href: '/', icon: BarChart3 },
     { name: 'NFT情绪', href: '/nft-sentiment', icon: Heart },
     { name: '地址分析', href: '/address-analysis', icon: Users },
+    { name: '数据仪表盘', href: '/', icon: BarChart3 },
     { name: '设置', href: '/settings', icon: Settings },
   ]
 

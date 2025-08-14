@@ -89,7 +89,8 @@ const NFTSentiment: React.FC = () => {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="max-w-6xl mx-auto">
       {/* 页面标题 - 更加醒目 */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-4 mb-6">
@@ -104,14 +105,14 @@ const NFTSentiment: React.FC = () => {
           </div>
         </div>
         <div className="mt-4">
-          <p className="text-xl font-bold text-gray-700 bg-gradient-to-r from-gray-100 to-gray-200 px-8 py-4 rounded-2xl shadow-lg inline-block border-2 border-gray-300">
+          <p className="text-xl font-bold text-gray-700 dark:text-gray-300 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 px-8 py-4 rounded-2xl shadow-lg inline-block border-2 border-gray-300 dark:border-gray-500">
             🚀 基于 Twitter 数据分析 NFT 项目的市场情绪 📊
           </p>
         </div>
       </div>
 
       {/* 搜索区域 */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <div className="flex gap-4 mb-4">
           <div className="flex-1">
             <input
@@ -119,7 +120,7 @@ const NFTSentiment: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="输入NFT项目名称或关键词..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black font-semibold text-lg"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-gray-700 font-semibold text-lg"
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
           </div>
@@ -138,7 +139,7 @@ const NFTSentiment: React.FC = () => {
         </div>
         
         {/* API配置状态提示 */}
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
+        <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700">API配置状态:</span>
             <div className="flex items-center gap-4 text-sm">
@@ -165,7 +166,7 @@ const NFTSentiment: React.FC = () => {
         
         {/* 热门项目快速选择 */}
         <div className="flex flex-wrap gap-3">
-          <span className="text-sm font-medium text-gray-700 mr-2 flex items-center">🔥 热门项目:</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2 flex items-center">🔥 热门项目:</span>
           {NFT_SENTIMENT_CONFIG.POPULAR_COLLECTIONS.slice(0, 6).map((collection) => (
             <button
               key={collection}
@@ -173,7 +174,7 @@ const NFTSentiment: React.FC = () => {
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                 searchQuery === collection 
                   ? 'bg-blue-600 text-white shadow-lg transform scale-105' 
-                  : 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200 hover:bg-gradient-to-r hover:from-blue-100 hover:to-indigo-100 hover:shadow-md hover:transform hover:scale-105'
+                  : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-800/30 dark:to-indigo-800/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-600/50 hover:bg-gradient-to-r hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-700/40 dark:hover:to-indigo-700/40 hover:shadow-md hover:transform hover:scale-105'
               }`}
             >
               {collection}
@@ -194,7 +195,7 @@ const NFTSentiment: React.FC = () => {
       {sentimentData && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* 情绪概览 */}
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
+          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg border border-gray-100 dark:border-gray-600 p-6 hover:shadow-xl transition-shadow duration-300">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800">
               <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
                 <Brain className="w-6 h-6 text-white" />
@@ -246,7 +247,7 @@ const NFTSentiment: React.FC = () => {
           </div>
 
           {/* 关键词 */}
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
+          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg border border-gray-100 dark:border-gray-600 p-6 hover:shadow-xl transition-shadow duration-300">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800">
               <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
                 <Search className="w-6 h-6 text-white" />
@@ -272,7 +273,7 @@ const NFTSentiment: React.FC = () => {
           </div>
 
           {/* Twitter数据统计 */}
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
+          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg border border-gray-100 dark:border-gray-600 p-6 hover:shadow-xl transition-shadow duration-300">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800">
               <div className="p-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg">
                 <Twitter className="w-6 h-6 text-white" />
@@ -307,7 +308,7 @@ const NFTSentiment: React.FC = () => {
 
       {/* 详细分析 */}
       {sentimentData && (
-        <div className="bg-gradient-to-br from-white to-purple-50 rounded-xl shadow-xl border-2 border-purple-200 p-8 mb-8">
+        <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900 rounded-xl shadow-xl border-2 border-purple-200 dark:border-purple-600 p-8 mb-8">
           <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-800">
             <div className="p-3 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl shadow-lg">
               <Brain className="w-7 h-7 text-white" />
@@ -326,7 +327,7 @@ const NFTSentiment: React.FC = () => {
 
       {/* 推文列表 */}
       {twitterData && (
-        <div className="bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-xl border-2 border-blue-200 p-8">
+        <div className="bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900 rounded-xl shadow-xl border-2 border-blue-200 dark:border-blue-600 p-8">
           <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-800">
             <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-lg">
               <Twitter className="w-7 h-7 text-white" />
@@ -367,6 +368,7 @@ const NFTSentiment: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
