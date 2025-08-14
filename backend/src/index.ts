@@ -15,7 +15,6 @@ console.log('  - ETHERSCAN_API_KEY:', process.env.ETHERSCAN_API_KEY ? '已加载
 console.log('  - HTTPS_PROXY:', process.env.HTTPS_PROXY ? '已配置' : '未配置')
 
 // 导入路由
-import firewallRoutes from './routes/firewall'
 import sentimentRoutes from './routes/sentiment'
 import addressRoutes from './routes/address'
 import settingsRoutes from './routes/settings'
@@ -23,7 +22,6 @@ import twitterRoutes from './routes/twitter'
 import kimiRoutes from './routes/kimi'
 
 // 导入服务
-import { FirewallService } from './services/FirewallService'
 import { SentimentService } from './services/SentimentService'
 import { WebSocketService } from './services/WebSocketService'
 
@@ -47,7 +45,6 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // 路由
-app.use('/api/firewall', firewallRoutes)
 app.use('/api/sentiment', sentimentRoutes)
 app.use('/api/address', addressRoutes)
 app.use('/api/settings', settingsRoutes)
@@ -92,11 +89,9 @@ app.get('/api/config/status', (req, res) => {
 const wsService = new WebSocketService(wss)
 
 // 启动服务
-const firewallService = new FirewallService()
 const sentimentService = new SentimentService()
 
 // 启动实时监控
-// firewallService.startMonitoring()
 //sentimentService.startMonitoring()
 
 const PORT = process.env.PORT || 3001
@@ -105,7 +100,6 @@ server.listen(PORT, () => {
   console.log(`🚀 Web3Sentry后端服务启动成功`)
   console.log(`📡 HTTP服务: http://localhost:${PORT}`)
   console.log(`🔌 WebSocket服务: ws://localhost:${PORT}`)
-  console.log(`🛡️  防火墙监控: 已启动`)
   console.log(`📊 情绪分析: 已启动`)
   console.log(`🔍 地址分析: 已启动`)
 })

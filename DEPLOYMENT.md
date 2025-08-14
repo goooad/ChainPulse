@@ -2,26 +2,26 @@
 
 ## 项目概述
 
-Web3Sentry是一个集成"链上行为防火墙 + NFT情绪预测 + 主流币种波动监控"的Web3安全防护平台。
+Web3Sentry是一个集成"NFT情绪预测 + 地址分析 + 仪表盘监控"的Web3数据分析平台。
 
 ## 核心功能
 
-### 1. 链上行为防火墙 🛡️
-- 实时拦截Web3交易、授权、签名
-- AI风险评估和智能拦截
-- 恶意合约检测
-- 异常交易监控
+### 1. 仪表盘监控 📊
+- 实时区块链数据监控
+- 交易统计和趋势分析
+- 市场概览和关键指标
+- 数据可视化展示
 
-### 2. NFT情绪预测 📊
+### 2. NFT情绪预测 📈
 - 基于Claude-3.5 LLM分析社交媒体数据
 - Twitter、Discord、Farcaster情绪挖掘
 - 结构化情绪信号输出（BULLISH/BEARISH + 置信度）
 - 实时情绪趋势监控
 
-### 3. 主流币种波动监控 📈
-- 实时价格监控和预测
-- 高阶波动分析
-- 智能预警系统
+### 3. 地址分析 🔍
+- 以太坊地址交易历史分析
+- 代币持有和转账记录
+- 交易模式识别
 - 风险评估报告
 
 ## 技术架构
@@ -100,13 +100,6 @@ cd frontend && npm run dev
 
 ## API接口
 
-### 防火墙API
-```
-GET  /api/firewall/risks     # 获取风险交易历史
-POST /api/firewall/analyze   # 分析特定交易
-GET  /api/firewall/status    # 获取防火墙状态
-```
-
 ### 情绪分析API
 ```
 GET  /api/sentiment/signals  # 获取情绪信号
@@ -114,11 +107,17 @@ POST /api/sentiment/analyze  # 分析特定内容
 GET  /api/sentiment/history  # 获取历史数据
 ```
 
-### 价格监控API
+### 地址分析API
 ```
-GET  /api/price/monitor      # 获取监控列表
-POST /api/price/predict      # 价格预测
-GET  /api/price/alerts       # 获取价格预警
+GET  /api/address/analyze    # 分析指定地址
+POST /api/address/history    # 获取地址交易历史
+GET  /api/address/tokens     # 获取地址代币信息
+```
+
+### 设置API
+```
+GET  /api/settings          # 获取系统设置
+POST /api/settings          # 更新系统设置
 ```
 
 ## 开发指南

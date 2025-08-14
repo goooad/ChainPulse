@@ -11,7 +11,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const navigation = [
     { name: '仪表板', href: '/', icon: BarChart3 },
-    { name: '链上防火墙', href: '/firewall', icon: Shield },
     { name: 'NFT情绪', href: '/nft-sentiment', icon: Heart },
     { name: '地址分析', href: '/address-analysis', icon: Users },
     { name: '设置', href: '/settings', icon: Settings },
@@ -27,7 +26,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div className="flex-shrink-0 flex items-center">
                 <Shield className="h-8 w-8 text-blue-600" />
                 <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">
-                  Web3Sentry
+                  ChainPulse
                 </span>
               </div>
             </div>
@@ -35,7 +34,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-sm text-gray-600 dark:text-gray-300">实时监控中</span>
+                <span className="text-sm text-gray-600 dark:text-gray-300">实时分析中</span>
               </div>
             </div>
           </div>

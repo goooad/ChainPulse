@@ -10,7 +10,6 @@ router.get('/', async (req, res) => {
       riskTolerance: 'MODERATE',
       autoBlock: true,
       requireConfirmation: true,
-      transactionFirewall: true,
       nftSentiment: true,
       priceMonitoring: true,
       highRiskTransactions: true,

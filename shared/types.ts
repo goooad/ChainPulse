@@ -82,7 +82,6 @@ export interface AIAnalysis {
 export interface UserSettings {
   riskTolerance: 'CONSERVATIVE' | 'MODERATE' | 'AGGRESSIVE';
   enabledFeatures: {
-    transactionFirewall: boolean;
     nftSentiment: boolean;
     priceMonitoring: boolean;
   };
