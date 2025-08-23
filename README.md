@@ -1,4 +1,4 @@
-# 🚀 ChainPulse - 下一代Web3智能分析平台
+# 🚀 ChainPulse - 链上脉搏
 
 > **AI驱动的区块链数据分析助手：NFT情绪预测 + 链上地址分析**
 
