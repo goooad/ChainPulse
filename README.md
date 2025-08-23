@@ -279,7 +279,6 @@ npm run build    # 构建扩展
 - 🌐 **项目主页**: https://github.com/your-username/chainpulse
 - 🐛 **问题反馈**: https://github.com/your-username/chainpulse/issues
 - 💬 **讨论交流**: https://github.com/your-username/chainpulse/discussions
-- 📧 **商务合作**: contact@chainpulse.io
 
 ---
 
