@@ -1,6 +1,6 @@
 # 🚀 ChainPulse - 下一代Web3智能分析平台
 
-> **AI驱动的区块链数据分析 + NFT情绪预测 + 实时风险监控**
+> **AI驱动的区块链数据分析 + NFT情绪预测 + 链上地址分析**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
