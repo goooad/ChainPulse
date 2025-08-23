@@ -52,9 +52,10 @@ const NFTSentiment: React.FC = () => {
 
   // API配置状态检查 - 从后端获取
   const [apiStatus, setApiStatus] = useState({
-    twitter: { configured: false, enabled: false },
     kimi: { configured: false, enabled: false },
-    useRealApi: import.meta.env.VITE_USE_REAL_API !== 'false'
+    twitter: { configured: false, enabled: false },
+    useRealApi: import.meta.env.VITE_USE_REAL_API !== 'false',
+    showApiStatus: import.meta.env.VITE_SHOW_API_STATUS !== 'false'
   });
 
   // 获取API配置状态
@@ -177,7 +178,7 @@ const NFTSentiment: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="输入NFT项目名称或关键词..."
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black dark:text-white bg-white dark:bg-gray-700 font-semibold text-lg"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 dark:text-white bg-white dark:bg-gray-800 font-semibold text-lg"
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
           </div>
@@ -195,31 +196,7 @@ const NFTSentiment: React.FC = () => {
           </button>
         </div>
         
-        {/* API配置状态提示 */}
-        <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">API配置状态:</span>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${apiStatus.twitter.configured ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span className={apiStatus.twitter.configured ? 'text-green-700' : 'text-red-700'}>
-                  Twitter: ✅ 已配置 - {apiStatus.twitter.enabled ? '真实API' : '模拟API'}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${apiStatus.kimi.configured ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span className={apiStatus.kimi.configured ? 'text-green-700' : 'text-red-700'}>
-                  Kimi: ✅ 已配置 - {apiStatus.kimi.enabled ? '真实API' : '模拟API'}
-                </span>
-              </div>
-            </div>
-          </div>
-          {(!apiStatus.twitter.configured || !apiStatus.kimi.configured) && apiStatus.useRealApi && (
-            <div className="mt-2 text-sm text-orange-600">
-              ⚠️ 需要配置API密钥才能使用真实数据，请查看设置页面进行配置
-            </div>
-          )}
-        </div>
+        {/* API配置状态已移除 */}
         
         {/* 热门项目快速选择 */}
         <div className="flex flex-wrap gap-3">
@@ -242,17 +219,17 @@ const NFTSentiment: React.FC = () => {
 
       {/* 错误提示 */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 text-red-600" />
-          <span className="text-red-700">{error}</span>
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-6 flex items-center gap-2">
+          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+          <span className="text-red-700 dark:text-red-300">{error}</span>
         </div>
       )}
 
       {/* 情绪摘要 */}
       {sentimentData && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-6 border border-blue-100">
-          <h3 className="text-lg font-semibold mb-3 text-blue-900">分析摘要</h3>
-          <p className="text-blue-800 leading-relaxed">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg p-6 mb-6 border border-blue-100 dark:border-blue-700">
+          <h3 className="text-lg font-semibold mb-3 text-blue-900 dark:text-blue-300">分析摘要</h3>
+          <p className="text-blue-800 dark:text-blue-200 leading-relaxed">
             {SentimentUtils.generateSummary(sentimentData)}
           </p>
         </div>
@@ -279,7 +256,7 @@ const NFTSentiment: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="font-bold text-gray-900 dark:text-gray-100">@{tweet.username || 'user'}</span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                      <span className="text-sm text-gray-500 dark:text-gray-300">
                         {tweet.created_at ? new Date(tweet.created_at).toLocaleDateString('zh-CN') : ''}
                       </span>
                     </div>
@@ -287,7 +264,7 @@ const NFTSentiment: React.FC = () => {
                       {tweet.text}
                     </p>
                     <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-300">
                         <span className="flex items-center gap-1">
                           <Heart className="w-4 h-4" />
                           {tweet.public_metrics?.like_count || 0}
@@ -315,7 +292,7 @@ const NFTSentiment: React.FC = () => {
           </div>
           {twitterData.tweets.length > 10 && (
             <div className="mt-4 text-center">
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <span className="text-sm text-gray-500 dark:text-gray-300">
                 显示前 10 条推文，共 {twitterData.total} 条
               </span>
             </div>
@@ -328,7 +305,7 @@ const NFTSentiment: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* 情绪概览 */}
           <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg border border-gray-100 dark:border-gray-600 p-6 hover:shadow-xl transition-shadow duration-300">
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800 dark:text-gray-200">
               <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
                 <Brain className="w-6 h-6 text-white" />
               </div>
@@ -348,10 +325,10 @@ const NFTSentiment: React.FC = () => {
               </div>
             </div>
             <div className="mt-6 space-y-4">
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-700 font-medium">情绪得分:</span>
+              <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span className="text-gray-700 dark:text-gray-300 font-medium">情绪得分:</span>
                 <div className="flex items-center gap-3">
-                  <div className="w-24 h-3 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-24 h-3 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
                     <div 
                       className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-blue-400 to-blue-600"
                       style={{ width: `${Math.abs(sentimentData.score) * 50 + 50}%` }}
@@ -360,16 +337,16 @@ const NFTSentiment: React.FC = () => {
                   <span className="font-bold text-lg text-gray-800 dark:text-gray-200">{SentimentUtils.formatScore(sentimentData.score)}</span>
                 </div>
               </div>
-              <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-700 font-medium">置信度:</span>
-                <span className="font-bold text-lg text-blue-600">{SentimentUtils.formatConfidence(sentimentData.confidence)}</span>
+              <div className="flex justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span className="text-gray-700 dark:text-gray-300 font-medium">置信度:</span>
+                <span className="font-bold text-lg text-blue-600 dark:text-blue-400">{SentimentUtils.formatConfidence(sentimentData.confidence)}</span>
               </div>
             </div>
           </div>
 
           {/* 关键词分析 */}
           <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg border border-gray-100 dark:border-gray-600 p-6 hover:shadow-xl transition-shadow duration-300">
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800 dark:text-gray-200">
               <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
                 <Search className="w-6 h-6 text-white" />
               </div>
@@ -388,7 +365,7 @@ const NFTSentiment: React.FC = () => {
             {sentimentData.keywords.length === 0 && (
               <div className="text-center py-8">
                 <div className="text-4xl mb-2">🔍</div>
-                <p className="text-gray-500 font-medium">暂无关键词数据</p>
+                <p className="text-gray-500 dark:text-gray-300 font-medium">暂无关键词数据</p>
               </div>
             )}
           </div>

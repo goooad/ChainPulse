@@ -195,7 +195,7 @@ const AddressAnalysis: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 text-slate-900 dark:text-gray-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 text-slate-900 dark:text-gray-100">
       {/* 顶部横幅 - 参考NFT情绪页面风格 */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-4 mb-6">
@@ -231,7 +231,7 @@ const AddressAnalysis: React.FC = () => {
                 placeholder="输入以太坊地址 (0x开头的40位十六进制字符)..."
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="md:flex-1 h-14 text-base border-2 border-blue-300 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-xl font-medium"
+                className="md:flex-1 h-14 text-base border-2 border-blue-300 dark:border-blue-700 focus-visible:ring-blue-500 focus-visible:border-blue-500 rounded-xl font-medium bg-white dark:bg-gray-800 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                 disabled={loading}
               />
               <Button
@@ -253,7 +253,7 @@ const AddressAnalysis: React.FC = () => {
             {/* 查询条数选择 */}
             <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">📊 查询条数:</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">📊 查询条数:</span>
                 <div className="flex items-center gap-4 text-sm">
                   {[100, 200, 500, 1000, 2000, 5000].map((count) => (
                     <button
@@ -262,7 +262,7 @@ const AddressAnalysis: React.FC = () => {
                       className={`px-2 py-1 rounded transition-colors ${
                         displayCount === count
                           ? 'bg-blue-600 text-white'
-                          : 'text-gray-600 hover:bg-gray-200'
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                     >
                       {count}条
@@ -310,9 +310,9 @@ const AddressAnalysis: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <div className="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl shadow-lg border-2 border-blue-300 p-6 text-white hover:shadow-xl transition-all duration-300 transform hover:scale-105">
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                <div className="p-2 bg-white/20 dark:bg-gray-700/20 rounded-lg backdrop-blur-sm">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                   </svg>
                 </div>
                 <div className="text-3xl font-black">{result.summary?.totalEthTransactions || 0}</div>
@@ -322,9 +322,9 @@ const AddressAnalysis: React.FC = () => {
             
             <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl shadow-lg border-2 border-emerald-300 p-6 text-white hover:shadow-xl transition-all duration-300 transform hover:scale-105">
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                <div className="p-2 bg-white/20 dark:bg-gray-700/20 rounded-lg backdrop-blur-sm">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
                 </div>
                 <div className="text-3xl font-black">{result.summary?.totalTokenTransactions || 0}</div>
@@ -360,20 +360,20 @@ const AddressAnalysis: React.FC = () => {
 
         {/* 合约信息 */}
         {result?.summary?.contractInfo && (
-          <Card className="mb-6 border-slate-200 shadow-sm">
+          <Card className="mb-6 border-slate-200 dark:border-slate-700 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-base font-semibold text-slate-800">合约信息</CardTitle>
+              <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-200">合约信息</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-md border border-slate-200 bg-white p-4">
-                <div className="text-xs uppercase text-slate-500">合约名称</div>
-                <div className="mt-1 text-base font-semibold text-slate-900">
+              <div className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-800 p-4">
+                <div className="text-xs uppercase text-slate-500 dark:text-slate-400">合约名称</div>
+                <div className="mt-1 text-base font-semibold text-slate-900 dark:text-slate-100">
                   {result.summary.contractInfo.name || '未知合约'}
                 </div>
               </div>
-              <div className="rounded-md border border-slate-200 bg-white p-4">
-                <div className="text-xs uppercase text-slate-500">代币符号</div>
-                <div className="mt-1 text-base font-semibold text-slate-900">
+              <div className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-gray-800 p-4">
+                <div className="text-xs uppercase text-slate-500 dark:text-slate-400">代币符号</div>
+                <div className="mt-1 text-base font-semibold text-slate-900 dark:text-slate-100">
                   {result.summary.contractInfo.symbol && result.summary.contractInfo.symbol !== 'N/A' 
                     ? result.summary.contractInfo.symbol 
                     : '暂无符号'}
@@ -390,9 +390,9 @@ const AddressAnalysis: React.FC = () => {
 
         {/* 概览统计 - 多彩渐变卡片 */}
         {result && (
-          <Card className="border-slate-200 shadow-sm">
+          <Card className="border-slate-200 dark:border-slate-700 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base font-semibold text-slate-800">交易记录详情</CardTitle>
+              <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-200">交易记录详情</CardTitle>
 
               {/* 标签按钮组 */}
               <div className="mt-4 flex flex-wrap gap-2">
@@ -400,8 +400,8 @@ const AddressAnalysis: React.FC = () => {
                   onClick={() => handleTabChange('eth')}
                   className={`px-3.5 py-2 rounded-md text-sm border transition ${
                     activeTab === 'eth'
-                      ? 'bg-slate-900 text-white border-slate-900'
-                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                      ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-700 dark:border-slate-700'
+                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100 dark:bg-gray-800 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-gray-700'
                   }`}
                 >
                   ETH 交易 ({result.ethTransactions?.length || 0})
@@ -410,8 +410,8 @@ const AddressAnalysis: React.FC = () => {
                   onClick={() => handleTabChange('token')}
                   className={`px-3.5 py-2 rounded-md text-sm border transition ${
                     activeTab === 'token'
-                      ? 'bg-slate-900 text-white border-slate-900'
-                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                      ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-700 dark:border-slate-700'
+                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100 dark:bg-gray-800 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-gray-700'
                   }`}
                 >
                   代币交易 ({result.tokenTransactions?.length || 0})
@@ -420,8 +420,8 @@ const AddressAnalysis: React.FC = () => {
                   onClick={() => handleTabChange('internal')}
                   className={`px-3.5 py-2 rounded-md text-sm border transition ${
                     activeTab === 'internal'
-                      ? 'bg-slate-900 text-white border-slate-900'
-                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                      ? 'bg-slate-900 text-white border-slate-900 dark:bg-slate-700 dark:border-slate-700'
+                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100 dark:bg-gray-800 dark:text-slate-300 dark:border-slate-600 dark:hover:bg-gray-700'
                   }`}
                 >
                   内部交易 ({result.internalTransactions?.length || 0})
@@ -434,7 +434,7 @@ const AddressAnalysis: React.FC = () => {
               {activeTab === 'eth' && (
                 <div className="space-y-4">
                   {getPaginatedData(result.ethTransactions || []).map((tx, idx) => (
-                    <div key={tx.hash} className="group relative overflow-hidden rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300">
+                    <div key={tx.hash} className="group relative overflow-hidden rounded-xl border border-blue-200 dark:border-gray-600/50 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800/30 dark:to-gray-700/30 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300 dark:hover:border-gray-500/50">
                       <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-400/10 to-transparent rounded-bl-full"></div>
                       
                       <div className="flex items-center justify-between mb-4">
@@ -442,9 +442,9 @@ const AddressAnalysis: React.FC = () => {
                           <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-lg text-sm font-bold">
                             #{(currentPage - 1) * itemsPerPage + idx + 1}
                           </div>
-                          <div className="flex items-center gap-2 px-3 py-1 bg-white/70 rounded-full">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-white/70 dark:bg-gray-700/70 rounded-full">
                             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                            <span className="text-xs font-medium text-blue-700">{formatTimestamp(tx.timeStamp)}</span>
+                            <span className="text-xs font-medium text-blue-700 dark:text-blue-300">{formatTimestamp(tx.timeStamp)}</span>
                           </div>
                         </div>
                         <a
@@ -461,54 +461,54 @@ const AddressAnalysis: React.FC = () => {
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
+                        <div className="bg-white/60 dark:bg-gray-700/20 rounded-lg p-3 border border-blue-100 dark:border-gray-600/30">
                           <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">发送方</div>
-                          <div className="font-mono text-sm font-medium text-gray-800">{tx.from.slice(0, 8)}...{tx.from.slice(-6)}</div>
+                          <div className="font-mono text-sm font-medium text-gray-800 dark:text-gray-200">{tx.from.slice(0, 8)}...{tx.from.slice(-6)}</div>
                         </div>
-                        <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
+                        <div className="bg-white/60 dark:bg-gray-700/60 rounded-lg p-3 border border-blue-100 dark:border-blue-800">
                           <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">接收方</div>
-                          <div className="font-mono text-sm font-medium text-gray-800">{tx.to.slice(0, 8)}...{tx.to.slice(-6)}</div>
+                          <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">{tx.to.slice(0, 8)}...{tx.to.slice(-6)}</div>
                         </div>
-                        <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
-                          <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">金额</div>
-                          <div className="font-bold text-lg text-blue-700">{formatValue(tx.value, '18')} ETH</div>
+                        <div className="bg-white/60 dark:bg-gray-700/60 rounded-lg p-3 border border-blue-100 dark:border-blue-800">
+                          <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">金额</div>
+                          <div className="font-bold text-lg text-blue-700 dark:text-blue-400">{formatValue(tx.value, '18')} ETH</div>
                         </div>
                       </div>
                     </div>
                   ))}
                   {(!result.ethTransactions || result.ethTransactions.length === 0) && (
                     <div className="text-center py-16">
-                      <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                         </svg>
                       </div>
-                      <p className="text-gray-500 font-medium">暂无 ETH 交易记录</p>
+                      <p className="text-gray-500 dark:text-gray-300 font-medium">暂无 ETH 交易记录</p>
                     </div>
                   )}
                   
                   {/* 分页控件 */}
                   {result.ethTransactions && result.ethTransactions.length > itemsPerPage && (
-                    <div className="flex justify-center items-center gap-3 mt-8 p-4 bg-white rounded-lg border border-gray-200">
+                    <div className="flex justify-center items-center gap-3 mt-8 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                         上一页
                       </button>
-                      <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
-                        <span className="text-sm font-medium text-blue-700">
+                      <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
                           第 {currentPage} 页，共 {getTotalPages(result.ethTransactions)} 页
                         </span>
                       </div>
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === getTotalPages(result.ethTransactions)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         下一页
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -524,7 +524,7 @@ const AddressAnalysis: React.FC = () => {
               {activeTab === 'token' && (
                 <div className="space-y-4">
                   {getPaginatedData(result.tokenTransactions || []).map((tx, idx) => (
-                    <div key={tx.hash} className="group relative overflow-hidden rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-green-50 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-emerald-300">
+                    <div key={tx.hash} className="group relative overflow-hidden rounded-xl border border-emerald-200 dark:border-gray-600/50 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-gray-800/30 dark:to-gray-700/30 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-emerald-300 dark:hover:border-gray-500/50">
                       <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-400/10 to-transparent rounded-bl-full"></div>
                       
                       <div className="flex items-center justify-between mb-4">
@@ -535,9 +535,9 @@ const AddressAnalysis: React.FC = () => {
                           <div className="px-3 py-1 bg-emerald-600 text-white rounded-full text-xs font-bold">
                             {tx.tokenSymbol || 'TOKEN'}
                           </div>
-                          <div className="flex items-center gap-2 px-3 py-1 bg-white/70 rounded-full">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-white/70 dark:bg-gray-700/70 rounded-full">
                             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                            <span className="text-xs font-medium text-emerald-700">{formatTimestamp(tx.timeStamp)}</span>
+                            <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">{formatTimestamp(tx.timeStamp)}</span>
                           </div>
                         </div>
                         <a
@@ -554,17 +554,17 @@ const AddressAnalysis: React.FC = () => {
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white/60 rounded-lg p-3 border border-emerald-100">
-                          <div className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">发送方</div>
-                          <div className="font-mono text-sm font-medium text-gray-800">{tx.from.slice(0, 8)}...{tx.from.slice(-6)}</div>
+                        <div className="bg-white/60 dark:bg-gray-700/20 rounded-lg p-3 border border-emerald-100 dark:border-gray-600/30">
+                          <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-1">发送方</div>
+                          <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">{tx.from.slice(0, 8)}...{tx.from.slice(-6)}</div>
                         </div>
-                        <div className="bg-white/60 rounded-lg p-3 border border-emerald-100">
-                          <div className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">接收方</div>
-                          <div className="font-mono text-sm font-medium text-gray-800">{tx.to.slice(0, 8)}...{tx.to.slice(-6)}</div>
+                        <div className="bg-white/60 dark:bg-gray-700/60 rounded-lg p-3 border border-emerald-100 dark:border-emerald-800">
+                          <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-1">接收方</div>
+                          <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">{tx.to.slice(0, 8)}...{tx.to.slice(-6)}</div>
                         </div>
-                        <div className="bg-white/60 rounded-lg p-3 border border-emerald-100">
-                          <div className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">金额</div>
-                          <div className="font-bold text-lg text-emerald-700">
+                        <div className="bg-white/60 dark:bg-gray-700/60 rounded-lg p-3 border border-emerald-100 dark:border-emerald-800">
+                          <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-1">金额</div>
+                          <div className="font-bold text-lg text-emerald-700 dark:text-emerald-400">
                             {formatValue(tx.value, tx.tokenDecimal || '18')} {tx.tokenSymbol}
                           </div>
                         </div>
@@ -573,22 +573,22 @@ const AddressAnalysis: React.FC = () => {
                   ))}
                   {(!result.tokenTransactions || result.tokenTransactions.length === 0) && (
                     <div className="text-center py-16">
-                      <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                       </div>
-                      <p className="text-gray-500 font-medium">暂无代币交易记录</p>
+                      <p className="text-gray-500 dark:text-gray-300 font-medium">暂无代币交易记录</p>
                     </div>
                   )}
                   
                   {/* 分页控件 */}
                   {result.tokenTransactions && result.tokenTransactions.length > itemsPerPage && (
-                    <div className="flex justify-center items-center gap-3 mt-8 p-4 bg-white rounded-lg border border-gray-200">
+                    <div className="flex justify-center items-center gap-3 mt-8 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -603,7 +603,7 @@ const AddressAnalysis: React.FC = () => {
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === getTotalPages(result.tokenTransactions)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         下一页
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -619,7 +619,7 @@ const AddressAnalysis: React.FC = () => {
               {activeTab === 'internal' && (
                 <div className="space-y-4">
                   {getPaginatedData(result.internalTransactions || []).map((tx, idx) => (
-                    <div key={tx.hash} className="group relative overflow-hidden rounded-xl border border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-purple-300">
+                    <div key={tx.hash} className="group relative overflow-hidden rounded-xl border border-purple-200 dark:border-gray-600/50 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-gray-800/30 dark:to-gray-700/30 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-purple-300 dark:hover:border-gray-500/50">
                       <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-400/10 to-transparent rounded-bl-full"></div>
                       
                       <div className="flex items-center justify-between mb-4">
@@ -627,9 +627,9 @@ const AddressAnalysis: React.FC = () => {
                           <div className="flex items-center justify-center w-8 h-8 bg-purple-600 text-white rounded-lg text-sm font-bold">
                             #{(currentPage - 1) * itemsPerPage + idx + 1}
                           </div>
-                          <div className="flex items-center gap-2 px-3 py-1 bg-white/70 rounded-full">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-white/70 dark:bg-gray-700/70 rounded-full">
                             <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                            <span className="text-xs font-medium text-purple-700">{formatTimestamp(tx.timeStamp)}</span>
+                            <span className="text-xs font-medium text-purple-700 dark:text-purple-300">{formatTimestamp(tx.timeStamp)}</span>
                           </div>
                         </div>
                         <a
@@ -646,39 +646,39 @@ const AddressAnalysis: React.FC = () => {
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
-                          <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1">发送方</div>
-                          <div className="font-mono text-sm font-medium text-gray-800">{tx.from.slice(0, 8)}...{tx.from.slice(-6)}</div>
+                        <div className="bg-white/60 dark:bg-gray-700/20 rounded-lg p-3 border border-purple-100 dark:border-gray-600/30">
+                          <div className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wide mb-1">发送方</div>
+                          <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">{tx.from.slice(0, 8)}...{tx.from.slice(-6)}</div>
                         </div>
-                        <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
-                          <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1">接收方</div>
-                          <div className="font-mono text-sm font-medium text-gray-800">{tx.to.slice(0, 8)}...{tx.to.slice(-6)}</div>
+                        <div className="bg-white/60 dark:bg-gray-700/60 rounded-lg p-3 border border-purple-100 dark:border-purple-800">
+                          <div className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wide mb-1">接收方</div>
+                          <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">{tx.to.slice(0, 8)}...{tx.to.slice(-6)}</div>
                         </div>
-                        <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
-                          <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1">金额</div>
-                          <div className="font-bold text-lg text-purple-700">{formatValue(tx.value, '18')} ETH</div>
+                        <div className="bg-white/60 dark:bg-gray-700/60 rounded-lg p-3 border border-purple-100 dark:border-purple-800">
+                          <div className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wide mb-1">金额</div>
+                          <div className="font-bold text-lg text-purple-700 dark:text-purple-300">{formatValue(tx.value, '18')} ETH</div>
                         </div>
                       </div>
                     </div>
                   ))}
                   {(!result.internalTransactions || result.internalTransactions.length === 0) && (
                     <div className="text-center py-16">
-                      <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
                         </svg>
                       </div>
-                      <p className="text-gray-500 font-medium">暂无内部交易记录</p>
+                      <p className="text-gray-500 dark:text-gray-300 font-medium">暂无内部交易记录</p>
                     </div>
                   )}
                   
                   {/* 分页控件 */}
                   {result.internalTransactions && result.internalTransactions.length > itemsPerPage && (
-                    <div className="flex justify-center items-center gap-3 mt-8 p-4 bg-white rounded-lg border border-gray-200">
+                    <div className="flex justify-center items-center gap-3 mt-8 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -693,7 +693,7 @@ const AddressAnalysis: React.FC = () => {
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === getTotalPages(result.internalTransactions)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         下一页
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -711,7 +711,7 @@ const AddressAnalysis: React.FC = () => {
         {/* AI 智能分析 - 美化版本，放在交易记录详情下面 */}
         {result && result.aiAnalysis && (
           <div className="mt-8">
-            <div className="relative overflow-hidden rounded-2xl border-2 border-gradient-to-r from-indigo-200 to-purple-200 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 shadow-xl">
+              <div className="relative overflow-hidden rounded-2xl border-2 border-gradient-to-r from-indigo-200 to-purple-200 dark:from-indigo-800 dark:to-purple-800 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950 dark:via-purple-950 dark:to-pink-950 shadow-xl">
               {/* 装饰性背景元素 */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-400/10 to-purple-400/10 rounded-full -translate-y-16 translate-x-16"></div>
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-pink-400/10 to-indigo-400/10 rounded-full translate-y-12 -translate-x-12"></div>
@@ -737,15 +737,15 @@ const AddressAnalysis: React.FC = () => {
               
               {/* 内容区域 */}
               <div className="relative p-6">
-                <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-white/50 shadow-lg p-6">
+                <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm rounded-xl border border-white/50 dark:border-gray-700/50 shadow-lg p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                     <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">分析结果</span>
                   </div>
                   
                   <div className="prose prose-sm max-w-none">
-                    <div className="bg-gradient-to-r from-gray-50 to-indigo-50 rounded-lg p-4 border-l-4 border-indigo-500">
-                      <pre className="whitespace-pre-wrap text-sm leading-7 text-gray-800 font-medium">
+                    <div className="bg-gradient-to-r from-gray-50 to-indigo-50 dark:from-gray-800 dark:to-indigo-900 rounded-lg p-4 border-l-4 border-indigo-500">
+                      <pre className="whitespace-pre-wrap text-sm leading-7 text-gray-800 dark:text-gray-200 font-medium">
                         {result.aiAnalysis}
                       </pre>
                     </div>
@@ -753,7 +753,7 @@ const AddressAnalysis: React.FC = () => {
                   
                   {/* 底部装饰 */}
                   <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>

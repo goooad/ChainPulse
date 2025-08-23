@@ -318,7 +318,11 @@ router.post('/analyze', async (req, res) => {
     ])
     
     const aiPrompt = `
-请分析以下以太坊地址的完整交易数据：
+请分析以下以太坊地址的交易数据（注意：这是抽样数据分析）：
+
+## 重要说明
+⚠️ 本次分析基于最近 ${maxLimit} 条交易记录的抽样数据，不是该地址的全部历史交易。
+请基于抽样数据进行合理分析，避免对整体交易活跃度做绝对性判断。
 
 ## 基础信息
 - 地址: ${address}
@@ -327,29 +331,29 @@ ${isContractAddress ? `- 合约名称: ${contractInfo.ContractName || '未知合
 - 当前ETH余额: ${ethBalance} ETH
 - 账户年龄: ${accountAge} 天 (首次交易: ${firstTxTime > 0 ? new Date(firstTxTime * 1000).toLocaleDateString('zh-CN') : '未知'})
 
-## 交易数量统计
-- 总交易数: ${stats.totalTransactions}
-- ETH交易: ${stats.totalEthTx} (发送: ${ethSentTxs.length}, 接收: ${ethReceivedTxs.length}, 失败: ${ethFailedTxs.length})
-- 代币交易: ${stats.totalTokenTx}
-- 内部交易: ${stats.totalInternalTx}
+## 抽样交易数量统计（最近 ${maxLimit} 条记录）
+- 抽样总交易数: ${stats.totalTransactions}
+- ETH交易样本: ${stats.totalEthTx} (发送: ${ethSentTxs.length}, 接收: ${ethReceivedTxs.length}, 失败: ${ethFailedTxs.length})
+- 代币交易样本: ${stats.totalTokenTx}
+- 内部交易样本: ${stats.totalInternalTx}
 
-## ETH交易深度分析
-- 总ETH交易量: ${ethTotalVolume.toFixed(4)} ETH
-- 平均每笔交易: ${ethTransactions.length > 0 ? (ethTotalVolume / ethTransactions.length).toFixed(6) : 0} ETH
-- 最大单笔交易: ${ethTransactions.length > 0 ? Math.max(...ethTransactions.map((tx: any) => parseFloat(formatWeiToEth(tx.value)))).toFixed(6) : 0} ETH
-- 总Gas消耗: ${(totalGasUsed / 1e6).toFixed(2)} M Gas
-- 平均Gas价格: ${avgGasPrice.toFixed(2)} Gwei
-- 失败交易率: ${ethTransactions.length > 0 ? (ethFailedTxs.length / ethTransactions.length * 100).toFixed(2) : 0}%
+## ETH交易样本分析
+- 样本ETH交易量: ${ethTotalVolume.toFixed(4)} ETH
+- 样本平均每笔交易: ${ethTransactions.length > 0 ? (ethTotalVolume / ethTransactions.length).toFixed(6) : 0} ETH
+- 样本最大单笔交易: ${ethTransactions.length > 0 ? Math.max(...ethTransactions.map((tx: any) => parseFloat(formatWeiToEth(tx.value)))).toFixed(6) : 0} ETH
+- 样本总Gas消耗: ${(totalGasUsed / 1e6).toFixed(2)} M Gas
+- 样本平均Gas价格: ${avgGasPrice.toFixed(2)} Gwei
+- 样本失败交易率: ${ethTransactions.length > 0 ? (ethFailedTxs.length / ethTransactions.length * 100).toFixed(2) : 0}%
 
-## 代币交易深度分析
-- 涉及代币种类: ${uniqueTokens.length} 种
-- 主要代币活动: ${Object.entries(tokenStats).sort(([,a]: any, [,b]: any) => b.count - a.count).slice(0, 5).map(([symbol, data]: any) => 
+## 代币交易样本分析
+- 样本涉及代币种类: ${uniqueTokens.length} 种
+- 样本主要代币活动: ${Object.entries(tokenStats).sort(([,a]: any, [,b]: any) => b.count - a.count).slice(0, 5).map(([symbol, data]: any) => 
   `${symbol}(${data.count}次, 发送${data.sent}, 接收${data.received})`).join(', ')}
 
-## 交易行为模式
-- 交易对手数量: ${counterparties.size} 个不同地址
-- 交易频率: ${accountAge > 0 ? (stats.totalTransactions / accountAge).toFixed(2) : 0} 笔/天
+## 基于样本的交易行为模式
+- 样本交易对手数量: ${counterparties.size} 个不同地址
 - 最近活跃度: ${allTimestamps.length > 0 && lastTxTime > 0 ? Math.floor((Date.now() / 1000 - lastTxTime) / (24 * 3600)) : 0} 天前最后交易
+- 注意：由于是抽样数据，请避免计算日均交易频率等可能误导的统计指标
 
 ## 最近交易样本 (展示交易模式)
 ### ETH交易样本:
@@ -367,11 +371,17 @@ ${internalTransactions.slice(0, 3).map((tx: any, i: number) =>
   `${i+1}. ${formatTimestamp(tx.timeStamp)} | ${tx.from.toLowerCase() === address.toLowerCase() ? '发送' : '接收'} ${formatWeiToEth(tx.value)} ETH | 类型: ${tx.type || 'call'}`
 ).join('\n')}
 
-请基于以上完整数据进行深度分析，包括：
+请基于以上抽样数据进行合理分析，包括：
 1. 地址性质和用途判断 (个人钱包/交易所/DeFi协议/机器人等)
-2. 交易活跃度和行为模式分析
-3. 资金流向和风险特征评估
-4. 基于历史数据的使用建议
+2. 基于样本的交易行为模式分析 (请明确说明这是基于抽样数据的分析结果)
+3. 资金流向和风险特征评估 (基于可观察的样本模式)
+4. 基于样本数据的使用建议
+
+⚠️ 分析要求：
+- 请在涉及交易频率、活跃度等统计时，明确说明这是基于 ${maxLimit} 条抽样记录的分析
+- 避免对该地址的整体历史交易活跃度做绝对性判断
+- 重点分析样本中观察到的交易模式和特征
+- 如需提及交易频率，请说明是"样本显示"或"近期样本中"等限定性表述
 
 请提供专业、详细的中文分析报告。
 `
