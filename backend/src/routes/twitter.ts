@@ -1,14 +1,16 @@
 import express from 'express'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch from 'node-fetch'
+import { generateMockTweets } from '../data/twitterMockData'
+import { DataStorageUtils } from '../utils/dataStorage'
 
 const router = express.Router()
 
 // Twitter API 搜索推文 - 支持GET和POST方法
 router.get('/search', async (req, res) => {
   try {
-    const { q: query, count = 100, tweet_fields } = req.query
-    const max_results = parseInt(count as string) || 100
+    const { q: query, count = 10, tweet_fields } = req.query
+    const max_results = Math.max(10, Math.min(100, parseInt(count as string) || 10))
     const bearerToken = process.env.TWITTER_BEARER_TOKEN
 
     if (!bearerToken) {
@@ -21,7 +23,9 @@ router.get('/search', async (req, res) => {
     const searchParams = new URLSearchParams({
       query: `${query} NFT -is:retweet lang:en`,
       max_results: max_results.toString(),
-      'tweet.fields': (tweet_fields as string) || 'created_at,author_id,public_metrics,context_annotations'
+      'tweet.fields': (tweet_fields as string) || 'created_at,author_id,public_metrics,context_annotations',
+      'expansions': 'author_id',
+      'user.fields': 'username,name'
     })
 
     console.log('发送Twitter API请求:', `https://api.twitter.com/2/tweets/search/recent?${searchParams}`)
@@ -63,85 +67,34 @@ router.get('/search', async (req, res) => {
       })
     }
 
-    // 检查429错误（请求过于频繁）- 返回模拟数据
-    if (response.status === 429) {
-      console.log('Twitter API请求频率限制，返回模拟数据:', responseData)
-      const mockData = {
-        tweets: [
-          {
-            id: '1',
-            text: `${query} floor price is pumping! 🚀 This collection never disappoints. #NFT`,
-            author: 'nft_trader_1',
-            created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-            metrics: {
-              retweet_count: 45,
-              like_count: 128,
-              reply_count: 23
-            }
-          },
-          {
-            id: '2',
-            text: `Not sure about ${query} anymore... prices are too volatile and the roadmap seems unclear 😕`,
-            author: 'crypto_skeptic',
-            created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-            metrics: {
-              retweet_count: 12,
-              like_count: 34,
-              reply_count: 67
-            }
-          },
-          {
-            id: '3',
-            text: `${query} community is still strong! Great utility and amazing art. Holding for long term 💎🙌`,
-            author: 'diamond_hands',
-            created_at: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
-            metrics: {
-              retweet_count: 89,
-              like_count: 256,
-              reply_count: 45
-            }
-          },
-          {
-            id: '4',
-            text: `${query} partnership with major brands is bullish! This is just the beginning 🔥`,
-            author: 'nft_bull',
-            created_at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-            metrics: {
-              retweet_count: 156,
-              like_count: 423,
-              reply_count: 78
-            }
-          },
-          {
-            id: '5',
-            text: `${query} gas fees are killing me... maybe it's time to look at other chains 😤`,
-            author: 'gas_victim',
-            created_at: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
-            metrics: {
-              retweet_count: 23,
-              like_count: 67,
-              reply_count: 34
-            }
-          }
-        ],
-        total: 1247
+    // 检查响应状态
+    if (response.status !== 200) {
+      console.log(`Twitter API返回非200状态码: ${response.status}`, responseData)
+      
+      // 先尝试读取对应NFT文件中的数据
+      try {
+        const cachedData = await DataStorageUtils.loadNFTDataFromFile(query as string)
+        if (cachedData) {
+          console.log('从NFT缓存文件读取数据:', query)
+          return res.json({
+            success: true,
+            data: cachedData,
+            isCachedData: true,
+            message: '从缓存文件读取数据'
+          })
+        }
+      } catch (cacheError: any) {
+        console.log('读取NFT缓存文件失败:', cacheError.message)
       }
       
+      // 如果缓存文件也不存在，返回固定mock数据
+      console.log('返回固定mock数据')
+      const mockData = generateMockTweets(query as string, max_results)
       return res.json({
         success: true,
         data: mockData,
         isMockData: true,
-        message: '由于API限制(429)，返回模拟数据'
-      })
-    }
-
-    // 检查响应状态
-    if (response.status !== 200) {
-      console.log(`Twitter API返回非200状态码: ${response.status}`, responseData)
-      return res.status(response.status).json({
-        success: false,
-        error: `Twitter API返回状态码: ${response.status}`,
-        details: responseData
+        message: '由于API限制且无缓存数据，返回模拟数据'
       })
     }
 
@@ -156,52 +109,92 @@ router.get('/search', async (req, res) => {
       })
     }
 
+    // 创建用户信息映射
+    const usersMap = new Map()
+    if (responseData.includes?.users) {
+      responseData.includes.users.forEach((user: any) => {
+        usersMap.set(user.id, user)
+      })
+    }
+
     // 转换Twitter API响应格式
-    const tweets = responseData.data.map((tweet: any) => ({
-      id: tweet.id,
-      text: tweet.text,
-      author: tweet.author_id,
-      created_at: tweet.created_at,
-      metrics: {
-        retweet_count: tweet.public_metrics?.retweet_count || 0,
-        like_count: tweet.public_metrics?.like_count || 0,
-        reply_count: tweet.public_metrics?.reply_count || 0,
+    const tweets = responseData.data.map((tweet: any) => {
+      const user = usersMap.get(tweet.author_id)
+      const username = user?.username || `user_${tweet.author_id.slice(-6)}`
+      const name = user?.name || `User ${tweet.author_id.slice(-4)}`
+      
+      return {
+        id: tweet.id,
+        text: tweet.text,
+        author_id: tweet.author_id,
+        username: username,
+        name: name,
+        created_at: tweet.created_at,
+        public_metrics: {
+          retweet_count: tweet.public_metrics?.retweet_count || 0,
+          like_count: tweet.public_metrics?.like_count || 0,
+          reply_count: tweet.public_metrics?.reply_count || 0,
+          quote_count: tweet.public_metrics?.quote_count || 0
+        },
+        url: `https://twitter.com/${username}/status/${tweet.id}`,
+        engagement_score: (tweet.public_metrics?.like_count || 0) + 
+                         (tweet.public_metrics?.retweet_count || 0) + 
+                         (tweet.public_metrics?.reply_count || 0) + 
+                         (tweet.public_metrics?.quote_count || 0)
       }
-    }))
+    })
+
+    // 按互动数排序
+    tweets.sort((a: any, b: any) => b.engagement_score - a.engagement_score)
+
+    const responseDataToSend = {
+      tweets,
+      total: responseData.meta?.result_count || 0
+    }
+
+    // 保存 Twitter 数据到文件（按NFT关键词保存，覆盖旧文件）
+    try {
+      await DataStorageUtils.saveNFTDataToFile(responseDataToSend, query as string)
+    } catch (saveError) {
+      console.error('保存NFT数据文件失败，但不影响API响应:', saveError)
+    }
 
     res.json({
       success: true,
-      data: {
-        tweets,
-        total: responseData.meta?.result_count || 0
-      }
+      data: responseDataToSend
     })
 
   } catch (error: any) {
     console.error('Twitter API 调用失败:', error.message)
     console.error('错误详情:', error)
     
-    // 根据不同的错误类型返回不同的状态码
-    if (error.name === 'AbortError') {
-      // 请求超时
-      return res.status(408).json({
-        success: false,
-        error: 'Twitter API请求超时，请稍后重试'
-      })
-    } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      // 网络连接错误
-      return res.status(503).json({
-        success: false,
-        error: '无法连接到Twitter API，请检查网络连接'
-      })
-    } else {
-      // 其他未知错误，返回400而不是500
-      return res.status(400).json({
-        success: false,
-        error: '请求处理失败，请检查请求参数',
-        details: error.message
-      })
+    const { q: query, count = 10 } = req.query
+    
+    // 先尝试读取对应NFT文件中的数据
+    try {
+      const cachedData = await DataStorageUtils.loadNFTDataFromFile(query as string)
+      if (cachedData) {
+        console.log('从NFT缓存文件读取数据:', query)
+        return res.json({
+          success: true,
+          data: cachedData,
+          isCachedData: true,
+          message: '从缓存文件读取数据'
+        })
+      }
+    } catch (cacheError: any) {
+      console.log('读取NFT缓存文件失败:', cacheError.message)
     }
+    
+    // 如果缓存文件也不存在，返回固定mock数据
+    console.log('返回固定mock数据')
+    const mockData = generateMockTweets(query as string, parseInt(count as string) || 5)
+    return res.json({
+      success: true,
+      data: mockData,
+      isMockData: true,
+      message: '由于网络错误且无缓存数据，返回模拟数据'
+    })
   }
 })
 
@@ -209,7 +202,10 @@ router.get('/search', async (req, res) => {
 router.post('/search', async (req, res) => {
   try {
     const { query, max_results = 100, tweet_fields } = req.body
+    const validMaxResults = Math.max(10, Math.min(100, max_results))
     const bearerToken = process.env.TWITTER_API_KEY || process.env.TWITTER_BEARER_TOKEN
+
+    console.log("Twitter API bearerToken: ",bearerToken)
 
     if (!bearerToken) {
       return res.status(503).json({
@@ -221,7 +217,9 @@ router.post('/search', async (req, res) => {
     const searchParams = new URLSearchParams({
       query: `${query} NFT -is:retweet lang:en`,
       max_results: max_results.toString(),
-      'tweet.fields': tweet_fields || 'created_at,author_id,public_metrics,context_annotations'
+      'tweet.fields': tweet_fields || 'created_at,author_id,public_metrics,context_annotations',
+      'expansions': 'author_id',
+      'user.fields': 'username,name'
     })
 
     console.log('发送Twitter API请求:', `https://api.twitter.com/2/tweets/search/recent?${searchParams}`)
@@ -247,7 +245,7 @@ router.post('/search', async (req, res) => {
 
     console.log('Twitter API响应状态:', response.status)
     const responseData: any = await response.json()
-    console.log('Twitter API响应数据:', JSON.stringify(responseData, null, 2))
+    //console.log('Twitter API响应数据:', JSON.stringify(responseData, null, 2))
 
     // 检查Twitter API特定错误
     if (responseData.title === 'UsageCapExceeded') {
@@ -263,85 +261,34 @@ router.post('/search', async (req, res) => {
       })
     }
 
-    // 检查429错误（请求过于频繁）- 返回模拟数据
-    if (response.status === 429) {
-      console.log('Twitter API请求频率限制，返回模拟数据:', responseData)
-      const mockData = {
-        tweets: [
-          {
-            id: '1',
-            text: `${query} floor price is pumping! 🚀 This collection never disappoints. #NFT`,
-            author: 'nft_trader_1',
-            created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-            metrics: {
-              retweet_count: 45,
-              like_count: 128,
-              reply_count: 23
-            }
-          },
-          {
-            id: '2',
-            text: `Not sure about ${query} anymore... prices are too volatile and the roadmap seems unclear 😕`,
-            author: 'crypto_skeptic',
-            created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-            metrics: {
-              retweet_count: 12,
-              like_count: 34,
-              reply_count: 67
-            }
-          },
-          {
-            id: '3',
-            text: `${query} community is still strong! Great utility and amazing art. Holding for long term 💎🙌`,
-            author: 'diamond_hands',
-            created_at: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
-            metrics: {
-              retweet_count: 89,
-              like_count: 256,
-              reply_count: 45
-            }
-          },
-          {
-            id: '4',
-            text: `${query} partnership with major brands is bullish! This is just the beginning 🔥`,
-            author: 'nft_bull',
-            created_at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-            metrics: {
-              retweet_count: 156,
-              like_count: 423,
-              reply_count: 78
-            }
-          },
-          {
-            id: '5',
-            text: `${query} gas fees are killing me... maybe it's time to look at other chains 😤`,
-            author: 'gas_victim',
-            created_at: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
-            metrics: {
-              retweet_count: 23,
-              like_count: 67,
-              reply_count: 34
-            }
-          }
-        ],
-        total: 1247
+    // 检查429错误（请求过于频繁）或其他非200状态码
+    if (response.status !== 200) {
+      console.log(`Twitter API返回非200状态码: ${response.status}`, responseData)
+      
+      // 先尝试读取对应NFT文件中的数据
+      try {
+        const cachedData = await DataStorageUtils.loadNFTDataFromFile(query)
+        if (cachedData) {
+          console.log('从NFT缓存文件读取数据:', query)
+          return res.json({
+            success: true,
+            data: cachedData,
+            isCachedData: true,
+            message: '从缓存文件读取数据'
+          })
+        }
+      } catch (cacheError: any) {
+        console.log('读取NFT缓存文件失败:', cacheError.message)
       }
       
+      // 如果缓存文件也不存在，返回固定mock数据
+      console.log('返回固定mock数据')
+      const mockData = generateMockTweets(query, max_results)
       return res.json({
         success: true,
         data: mockData,
         isMockData: true,
-        message: '由于API限制(429)，返回模拟数据'
-      })
-    }
-
-    // 检查响应状态
-    if (response.status !== 200) {
-      console.log(`Twitter API返回非200状态码: ${response.status}`, responseData)
-      return res.status(response.status).json({
-        success: false,
-        error: `Twitter API返回状态码: ${response.status}`,
-        details: responseData
+        message: '由于API限制且无缓存数据，返回模拟数据'
       })
     }
 
@@ -356,52 +303,92 @@ router.post('/search', async (req, res) => {
       })
     }
 
+    // 创建用户信息映射
+    const usersMap = new Map()
+    if (responseData.includes?.users) {
+      responseData.includes.users.forEach((user: any) => {
+        usersMap.set(user.id, user)
+      })
+    }
+
     // 转换Twitter API响应格式
-    const tweets = responseData.data.map((tweet: any) => ({
-      id: tweet.id,
-      text: tweet.text,
-      author: tweet.author_id,
-      created_at: tweet.created_at,
-      metrics: {
-        retweet_count: tweet.public_metrics?.retweet_count || 0,
-        like_count: tweet.public_metrics?.like_count || 0,
-        reply_count: tweet.public_metrics?.reply_count || 0,
+    const tweets = responseData.data.map((tweet: any) => {
+      const user = usersMap.get(tweet.author_id)
+      const username = user?.username || `user_${tweet.author_id.slice(-6)}`
+      const name = user?.name || `User ${tweet.author_id.slice(-4)}`
+      
+      return {
+        id: tweet.id,
+        text: tweet.text,
+        author_id: tweet.author_id,
+        username: username,
+        name: name,
+        created_at: tweet.created_at,
+        public_metrics: {
+          retweet_count: tweet.public_metrics?.retweet_count || 0,
+          like_count: tweet.public_metrics?.like_count || 0,
+          reply_count: tweet.public_metrics?.reply_count || 0,
+          quote_count: tweet.public_metrics?.quote_count || 0
+        },
+        url: `https://twitter.com/${username}/status/${tweet.id}`,
+        engagement_score: (tweet.public_metrics?.like_count || 0) + 
+                         (tweet.public_metrics?.retweet_count || 0) + 
+                         (tweet.public_metrics?.reply_count || 0) + 
+                         (tweet.public_metrics?.quote_count || 0)
       }
-    }))
+    })
+
+    // 按互动数排序
+    tweets.sort((a: any, b: any) => b.engagement_score - a.engagement_score)
+
+    const responseDataToSend = {
+      tweets,
+      total: responseData.meta?.result_count || 0
+    }
+
+    // 保存 Twitter 数据到文件（按NFT关键词保存，覆盖旧文件）
+    try {
+      await DataStorageUtils.saveNFTDataToFile(responseDataToSend, query)
+    } catch (saveError) {
+      console.error('保存NFT数据文件失败，但不影响API响应:', saveError)
+    }
 
     res.json({
       success: true,
-      data: {
-        tweets,
-        total: responseData.meta?.result_count || 0
-      }
+      data: responseDataToSend
     })
 
   } catch (error: any) {
     console.error('Twitter API 调用失败:', error.message)
     console.error('错误详情:', error)
     
-    // 根据不同的错误类型返回不同的状态码
-    if (error.name === 'AbortError') {
-      // 请求超时
-      return res.status(408).json({
-        success: false,
-        error: 'Twitter API请求超时，请稍后重试'
-      })
-    } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      // 网络连接错误
-      return res.status(503).json({
-        success: false,
-        error: '无法连接到Twitter API，请检查网络连接'
-      })
-    } else {
-      // 其他未知错误，返回400而不是500
-      return res.status(400).json({
-        success: false,
-        error: '请求处理失败，请检查请求参数',
-        details: error.message
-      })
+    const { query, max_results = 100 } = req.body
+    
+    // 先尝试读取对应NFT文件中的数据
+    try {
+      const cachedData = await DataStorageUtils.loadNFTDataFromFile(query)
+      if (cachedData) {
+        console.log('从NFT缓存文件读取数据:', query)
+        return res.json({
+          success: true,
+          data: cachedData,
+          isCachedData: true,
+          message: '从缓存文件读取数据'
+        })
+      }
+    } catch (cacheError: any) {
+      console.log('读取NFT缓存文件失败:', cacheError.message)
     }
+    
+    // 如果缓存文件也不存在，返回固定mock数据
+    console.log('返回固定mock数据')
+    const mockData = generateMockTweets(query, max_results)
+    return res.json({
+      success: true,
+      data: mockData,
+      isMockData: true,
+      message: '由于网络错误且无缓存数据，返回模拟数据'
+    })
   }
 })
 

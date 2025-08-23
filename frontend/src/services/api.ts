@@ -90,9 +90,12 @@ export class TwitterService {
     try {
       const response = await api.post('/twitter/search', {
         query: params.query,
-        max_results: params.max_results || 100,
+        max_results: params.max_results || 10,
         tweet_fields: params.tweet_fields || 'created_at,author_id,public_metrics,context_annotations'
       });
+
+
+
 
       // 检查响应是否成功
       if (!response.data.success) {
@@ -114,18 +117,9 @@ export class TwitterService {
     }
   }
 
-
-  static async getTweetsByHashtag(hashtag: string, maxResults: number = 100): Promise<TwitterSearchResponse> {
+  static async getTweetsByKeyword(keyword: string, maxResults: number = 10): Promise<TwitterSearchResponse> {
     return this.searchTweets({
-      query: `#${hashtag} NFT -is:retweet lang:en`,
-      max_results: maxResults,
-      tweet_fields: 'created_at,author_id,public_metrics,context_annotations'
-    });
-  }
-
-  static async getTweetsByKeyword(keyword: string, maxResults: number = 100): Promise<TwitterSearchResponse> {
-    return this.searchTweets({
-      query: `${keyword} NFT -is:retweet lang:en`,
+      query: keyword,
       max_results: maxResults,
       tweet_fields: 'created_at,author_id,public_metrics,context_annotations'
     });
@@ -271,6 +265,48 @@ export class NFTSentimentService {
     // 这里可以实现历史情绪数据的获取
     // 暂时返回空数组，后续可以扩展
     return [];
+  }
+}
+
+// 地址分析服务
+export class AddressService {
+  static async analyzeAddress(address: string): Promise<{
+    address: string;
+    ethTransactions: any[];
+    tokenTransactions: any[];
+    analysis: {
+      totalEthVolume: number;
+      totalTokenTransfers: number;
+      mostActiveTokens: any[];
+      transactionPattern: string;
+      riskLevel: string;
+      insights: string[];
+    };
+    kimiAnalysis: string;
+  }> {
+    try {
+      console.log('开始分析地址:', address);
+      
+      const response = await api.post('/address/analyze', { address });
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || '地址分析失败');
+      }
+      
+      return response.data.data;
+    } catch (error: any) {
+      console.error('地址分析失败:', error);
+      
+      if (error.response?.status === 400) {
+        throw new Error('无效的以太坊地址格式');
+      } else if (error.response?.status === 429) {
+        throw new Error('API调用频率过高，请稍后重试');
+      } else if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      } else {
+        throw new Error('地址分析失败，请检查网络连接或稍后重试');
+      }
+    }
   }
 }
 

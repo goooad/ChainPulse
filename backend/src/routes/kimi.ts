@@ -1,5 +1,6 @@
 import express from 'express'
 import fetch from 'node-fetch'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const router = express.Router()
 
@@ -18,7 +19,9 @@ router.post('/analyze', async (req, res) => {
 
     console.log('发送Kimi API请求...')
     
-    const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
+    // 配置代理（如果环境变量中有设置）
+    const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY
+    const fetchOptions: any = {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -40,36 +43,21 @@ router.post('/analyze', async (req, res) => {
         max_tokens: 2000,
       }),
       signal: AbortSignal.timeout(30000)
-    })
+    }
+
+    // 如果有代理设置，使用代理
+    if (proxyUrl) {
+      console.log('使用代理:', proxyUrl)
+      fetchOptions.agent = new HttpsProxyAgent(proxyUrl)
+    }
+    
+    const response = await fetch('https://api.moonshot.cn/v1/chat/completions', fetchOptions)
 
     console.log('Kimi API响应状态:', response.status)
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       console.error('Kimi API错误:', response.status, errorData)
-      
-      // 如果是500错误，返回模拟数据
-      if (response.status === 500) {
-        console.log('检测到500错误，返回模拟分析数据')
-        const mockAnalysis = {
-          sentiment: 'positive',
-          score: 0.65,
-          confidence: 0.75,
-          keywords: ['NFT', '市场', '情绪', '分析'],
-          analysis: '基于当前市场数据分析，该NFT项目呈现积极的市场情绪。社区活跃度较高，持有者信心较强。建议关注项目方的后续发展规划。'
-        }
-        
-        return res.json({
-          success: true,
-          sentiment: mockAnalysis.sentiment,
-          score: mockAnalysis.score,
-          confidence: mockAnalysis.confidence,
-          keywords: mockAnalysis.keywords,
-          analysis: mockAnalysis.analysis,
-          isMockData: true,
-          message: '由于API限制(500)，返回模拟分析数据'
-        })
-      }
       
       return res.status(response.status).json({
         success: false,
@@ -97,11 +85,18 @@ router.post('/analyze', async (req, res) => {
       if (jsonMatch) {
         analysisResult = JSON.parse(jsonMatch[0])
       } else {
-        // 如果无法解析JSON，则进行简单的文本分析
-        analysisResult = fallbackAnalysis(content)
+        // 如果无法解析JSON，直接报错
+        return res.status(500).json({
+          success: false,
+          error: 'Kimi API 返回内容格式不正确，无法解析为JSON'
+        })
       }
-    } catch (parseError) {
-      analysisResult = fallbackAnalysis(content)
+    } catch (parseError: any) {
+      return res.status(500).json({
+        success: false,
+        error: 'Kimi API 返回内容解析失败',
+        details: parseError.message
+      })
     }
 
     // 确保返回的数据结构与前端期望一致
@@ -129,34 +124,5 @@ router.post('/analyze', async (req, res) => {
   }
 })
 
-// 简单的文本分析回退方案
-function fallbackAnalysis(content: string) {
-  const lowerContent = content.toLowerCase()
-  
-  const positiveWords = ['positive', '积极', '看好', '上涨', '牛市', 'bullish']
-  const negativeWords = ['negative', '消极', '看空', '下跌', '熊市', 'bearish']
-  
-  let sentiment: 'positive' | 'negative' | 'neutral' = 'neutral'
-  let score = 0
-  
-  const positiveCount = positiveWords.filter(word => lowerContent.includes(word)).length
-  const negativeCount = negativeWords.filter(word => lowerContent.includes(word)).length
-  
-  if (positiveCount > negativeCount) {
-    sentiment = 'positive'
-    score = Math.min(0.8, 0.3 + positiveCount * 0.1)
-  } else if (negativeCount > positiveCount) {
-    sentiment = 'negative'
-    score = Math.max(-0.8, -0.3 - negativeCount * 0.1)
-  }
-
-  return {
-    sentiment,
-    score,
-    confidence: 0.6,
-    keywords: [],
-    analysis: content
-  }
-}
 
 export default router

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, TrendingUp, TrendingDown, Activity, Twitter, Brain, AlertCircle, Clock, Heart } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown, Activity, Twitter, Brain, AlertCircle, Heart } from 'lucide-react';
 import { NFTSentimentService, ConfigService } from '../services/api';
 import { NFTSentimentData, TwitterSearchResponse } from '../types/api';
 import { SentimentUtils, TimeUtils, ValidationUtils } from '../utils/sentiment';
@@ -232,17 +232,6 @@ const NFTSentiment: React.FC = () => {
                 <span className="text-gray-700 font-medium">置信度:</span>
                 <span className="font-bold text-lg text-blue-600">{SentimentUtils.formatConfidence(sentimentData.confidence)}</span>
               </div>
-              <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-700 font-medium">推文数量:</span>
-                <span className="font-bold text-lg text-purple-600">{sentimentData.tweetCount.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-700 font-medium">分析时间:</span>
-                <span className="font-medium text-sm flex items-center gap-2 text-gray-600">
-                  <Clock className="w-4 h-4" />
-                  {TimeUtils.getRelativeTime(sentimentData.timestamp)}
-                </span>
-              </div>
             </div>
           </div>
 
@@ -284,12 +273,6 @@ const NFTSentiment: React.FC = () => {
               <div className="flex justify-between p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
                 <span className="text-gray-700 font-medium">总推文:</span>
                 <span className="font-bold text-xl text-blue-600">{twitterData?.total || 0}</span>
-              </div>
-              <div className="flex justify-between p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                <span className="text-gray-700 font-medium">分析时间:</span>
-                <span className="font-medium text-sm text-purple-600">
-                  {new Date(sentimentData.timestamp).toLocaleString('zh-CN')}
-                </span>
               </div>
             </div>
           </div>
@@ -339,22 +322,35 @@ const NFTSentiment: React.FC = () => {
           </h3>
           <div className="space-y-4 max-h-96 overflow-y-auto">
             {twitterData.tweets.slice(0, 10).map((tweet) => (
-              <div key={tweet.id} className="border-l-4 border-blue-200 pl-4 py-3 hover:bg-gray-50 transition-colors">
+              <div key={tweet.id} className="border-l-4 border-blue-200 pl-4 py-3 hover:bg-gray-50 transition-colors rounded-lg">
                 <p className="text-gray-800 mb-3 leading-relaxed">{tweet.text}</p>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  <span className="font-medium">@{tweet.author}</span>
-                  <span>{TimeUtils.formatTimestamp(tweet.created_at)}</span>
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      ❤️ {tweet.metrics.like_count.toLocaleString()}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      🔄 {tweet.metrics.retweet_count.toLocaleString()}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      💬 {tweet.metrics.reply_count.toLocaleString()}
-                    </span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <span className="font-medium">@{tweet.username || tweet.author}</span>
+                    <span>{TimeUtils.formatTimestamp(tweet.created_at)}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        ❤️ {(tweet.public_metrics?.like_count || tweet.metrics?.like_count || 0).toLocaleString()}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        🔄 {(tweet.public_metrics?.retweet_count || tweet.metrics?.retweet_count || 0).toLocaleString()}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        💬 {(tweet.public_metrics?.reply_count || tweet.metrics?.reply_count || 0).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
+                  {tweet.url && (
+                    <a
+                      href={tweet.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <Twitter className="w-4 h-4" />
+                      查看推文
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
@@ -368,6 +364,7 @@ const NFTSentiment: React.FC = () => {
           </div>
         </div>
       )}
+
       </div>
     </div>
   );

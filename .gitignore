@@ -16,3 +16,5 @@ frontend/dist/
 backend/dist/
 frontend/build/
 backend/build/
+
+backend/data/

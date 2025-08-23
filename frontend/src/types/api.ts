@@ -9,11 +9,19 @@ export interface TwitterTweet {
   id: string;
   text: string;
   author: string;
+  username?: string;
   created_at: string;
+  url?: string;
   metrics: {
     retweet_count: number;
     like_count: number;
     reply_count: number;
+  };
+  public_metrics?: {
+    retweet_count: number;
+    like_count: number;
+    reply_count: number;
+    quote_count?: number;
   };
 }
 
