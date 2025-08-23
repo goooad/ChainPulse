@@ -273,55 +273,115 @@ router.post('/analyze', async (req, res) => {
       }))
     }
 
-    // 步骤5: AI分析
-    console.log('🤖 [步骤6] 开始AI分析...')
+    // 步骤5: 深度数据分析和AI分析
+    console.log('🤖 [步骤6] 准备深度分析数据...')
+    
+    // 计算详细的统计数据
+    const ethTotalVolume = ethTransactions.reduce((sum: number, tx: any) => sum + parseFloat(formatWeiToEth(tx.value)), 0)
+    const ethSentTxs = ethTransactions.filter((tx: any) => tx.from.toLowerCase() === address.toLowerCase())
+    const ethReceivedTxs = ethTransactions.filter((tx: any) => tx.to.toLowerCase() === address.toLowerCase())
+    const ethFailedTxs = ethTransactions.filter((tx: any) => tx.isError === '1')
+    
+    // 代币统计
+    const uniqueTokens = [...new Set(tokenTransactions.map((tx: any) => tx.contractAddress))]
+    const tokenStats = tokenTransactions.reduce((acc: any, tx: any) => {
+      const symbol = tx.tokenSymbol
+      if (!acc[symbol]) {
+        acc[symbol] = { count: 0, sent: 0, received: 0, name: tx.tokenName }
+      }
+      acc[symbol].count++
+      if (tx.from.toLowerCase() === address.toLowerCase()) acc[symbol].sent++
+      if (tx.to.toLowerCase() === address.toLowerCase()) acc[symbol].received++
+      return acc
+    }, {})
+    
+    // 时间分析
+    const allTimestamps = [
+      ...ethTransactions.map((tx: any) => parseInt(tx.timeStamp)),
+      ...tokenTransactions.map((tx: any) => parseInt(tx.timeStamp)),
+      ...internalTransactions.map((tx: any) => parseInt(tx.timeStamp))
+    ].filter(t => t > 0).sort((a, b) => a - b)
+    
+    const firstTxTime = allTimestamps.length > 0 ? allTimestamps[0] : 0
+    const lastTxTime = allTimestamps.length > 0 ? allTimestamps[allTimestamps.length - 1] : 0
+    const accountAge = firstTxTime > 0 ? Math.floor((Date.now() / 1000 - firstTxTime) / (24 * 3600)) : 0
+    
+    // Gas费用分析
+    const totalGasUsed = ethTransactions.reduce((sum: number, tx: any) => sum + parseInt(tx.gasUsed || '0'), 0)
+    const avgGasPrice = ethTransactions.length > 0 ? 
+      ethTransactions.reduce((sum: number, tx: any) => sum + parseInt(tx.gasPrice || '0'), 0) / ethTransactions.length / 1e9 : 0
+    
+    // 交易对手分析
+    const counterparties = new Set([
+      ...ethTransactions.map((tx: any) => tx.from.toLowerCase() === address.toLowerCase() ? tx.to : tx.from),
+      ...tokenTransactions.map((tx: any) => tx.from.toLowerCase() === address.toLowerCase() ? tx.to : tx.from)
+    ])
+    
     const aiPrompt = `
-请分析以下以太坊地址的交易数据：
+请分析以下以太坊地址的完整交易数据：
 
-地址: ${address}
-是否为合约: ${isContractAddress ? '是' : '否'}
-${isContractAddress ? `合约名称: ${contractInfo.ContractName || '未知'}` : ''}
-ETH余额: ${ethBalance} ETH
-总交易数: ${stats.totalTransactions}
-- ETH交易: ${stats.totalEthTx}
-- 代币交易: ${stats.totalTokenTx}  
+## 基础信息
+- 地址: ${address}
+- 地址类型: ${isContractAddress ? '智能合约' : 'EOA外部账户'}
+${isContractAddress ? `- 合约名称: ${contractInfo.ContractName || '未知合约'}` : ''}
+- 当前ETH余额: ${ethBalance} ETH
+- 账户年龄: ${accountAge} 天 (首次交易: ${firstTxTime > 0 ? new Date(firstTxTime * 1000).toLocaleDateString('zh-CN') : '未知'})
+
+## 交易数量统计
+- 总交易数: ${stats.totalTransactions}
+- ETH交易: ${stats.totalEthTx} (发送: ${ethSentTxs.length}, 接收: ${ethReceivedTxs.length}, 失败: ${ethFailedTxs.length})
+- 代币交易: ${stats.totalTokenTx}
 - 内部交易: ${stats.totalInternalTx}
 
-最近的ETH交易:
-${analysisData.recentEthTx.map((tx: any) => `- ${tx.timestamp}: ${tx.from === address ? '发送' : '接收'} ${tx.value} ETH`).join('\n')}
+## ETH交易深度分析
+- 总ETH交易量: ${ethTotalVolume.toFixed(4)} ETH
+- 平均每笔交易: ${ethTransactions.length > 0 ? (ethTotalVolume / ethTransactions.length).toFixed(6) : 0} ETH
+- 最大单笔交易: ${ethTransactions.length > 0 ? Math.max(...ethTransactions.map((tx: any) => parseFloat(formatWeiToEth(tx.value)))).toFixed(6) : 0} ETH
+- 总Gas消耗: ${(totalGasUsed / 1e6).toFixed(2)} M Gas
+- 平均Gas价格: ${avgGasPrice.toFixed(2)} Gwei
+- 失败交易率: ${ethTransactions.length > 0 ? (ethFailedTxs.length / ethTransactions.length * 100).toFixed(2) : 0}%
 
-最近的代币交易:
-${analysisData.recentTokenTx.map((tx: any) => `- ${tx.timestamp}: ${tx.tokenSymbol} ${tx.value}`).join('\n')}
+## 代币交易深度分析
+- 涉及代币种类: ${uniqueTokens.length} 种
+- 主要代币活动: ${Object.entries(tokenStats).sort(([,a]: any, [,b]: any) => b.count - a.count).slice(0, 5).map(([symbol, data]: any) => 
+  `${symbol}(${data.count}次, 发送${data.sent}, 接收${data.received})`).join(', ')}
 
-请从以下角度进行分析：
-1. 地址类型和用途判断
-2. 交易活跃度分析
-3. 资金流向特征
-4. 风险评估
-5. 总结和建议
+## 交易行为模式
+- 交易对手数量: ${counterparties.size} 个不同地址
+- 交易频率: ${accountAge > 0 ? (stats.totalTransactions / accountAge).toFixed(2) : 0} 笔/天
+- 最近活跃度: ${allTimestamps.length > 0 && lastTxTime > 0 ? Math.floor((Date.now() / 1000 - lastTxTime) / (24 * 3600)) : 0} 天前最后交易
 
-请用中文回答，条理清晰。
+## 最近交易样本 (展示交易模式)
+### ETH交易样本:
+${ethTransactions.slice(0, 5).map((tx: any, i: number) => 
+  `${i+1}. ${formatTimestamp(tx.timeStamp)} | ${tx.from.toLowerCase() === address.toLowerCase() ? '发送' : '接收'} ${formatWeiToEth(tx.value)} ETH | Gas: ${(parseInt(tx.gasUsed || '0') / 1000).toFixed(1)}K | ${tx.isError === '1' ? '失败' : '成功'}`
+).join('\n')}
+
+### 代币交易样本:
+${tokenTransactions.slice(0, 5).map((tx: any, i: number) => 
+  `${i+1}. ${formatTimestamp(tx.timeStamp)} | ${tx.from.toLowerCase() === address.toLowerCase() ? '发送' : '接收'} ${tx.value} ${tx.tokenSymbol} | 合约: ${tx.contractAddress.slice(0,8)}...`
+).join('\n')}
+
+### 内部交易样本:
+${internalTransactions.slice(0, 3).map((tx: any, i: number) => 
+  `${i+1}. ${formatTimestamp(tx.timeStamp)} | ${tx.from.toLowerCase() === address.toLowerCase() ? '发送' : '接收'} ${formatWeiToEth(tx.value)} ETH | 类型: ${tx.type || 'call'}`
+).join('\n')}
+
+请基于以上完整数据进行深度分析，包括：
+1. 地址性质和用途判断 (个人钱包/交易所/DeFi协议/机器人等)
+2. 交易活跃度和行为模式分析
+3. 资金流向和风险特征评估
+4. 基于历史数据的使用建议
+
+请提供专业、详细的中文分析报告。
 `
 
     const aiAnalysis = await analyzeWithKimi(aiPrompt)
-
-    // 计算唯一代币数量
-    const uniqueTokens = new Set(tokenTransactions.map((tx: any) => tx.contractAddress)).size
     
     // 计算总ETH价值
     const totalEthValue = ethTransactions.reduce((sum: number, tx: any) => {
       return sum + parseFloat(formatWeiToEth(tx.value))
     }, 0)
-
-    // 获取时间范围
-    const allTxTimestamps = [
-      ...ethTransactions.map((tx: any) => parseInt(tx.timeStamp)),
-      ...tokenTransactions.map((tx: any) => parseInt(tx.timeStamp)),
-      ...internalTransactions.map((tx: any) => parseInt(tx.timeStamp))
-    ].filter(t => t > 0).sort((a, b) => a - b)
-
-    const firstTxDate = allTxTimestamps.length > 0 ? allTxTimestamps[0] : 0
-    const lastTxDate = allTxTimestamps.length > 0 ? allTxTimestamps[allTxTimestamps.length - 1] : 0
 
     // 步骤6: 返回结果
     const result = {
@@ -386,8 +446,8 @@ ${analysisData.recentTokenTx.map((tx: any) => `- ${tx.timestamp}: ${tx.tokenSymb
           totalInternalTransactions: internalTransactions.length,
           totalEthValue: totalEthValue.toString(),
           uniqueTokens: uniqueTokens,
-          firstTransactionDate: firstTxDate ? new Date(firstTxDate * 1000).toISOString() : '',
-          lastTransactionDate: lastTxDate ? new Date(lastTxDate * 1000).toISOString() : ''
+          firstTransactionDate: firstTxTime ? new Date(firstTxTime * 1000).toISOString() : '',
+          lastTransactionDate: lastTxTime ? new Date(lastTxTime * 1000).toISOString() : ''
         },
         aiAnalysis
       },

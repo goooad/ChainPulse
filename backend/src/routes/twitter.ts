@@ -247,19 +247,19 @@ router.post('/search', async (req, res) => {
     const responseData: any = await response.json()
     //console.log('Twitter API响应数据:', JSON.stringify(responseData, null, 2))
 
-    // 检查Twitter API特定错误
-    if (responseData.title === 'UsageCapExceeded') {
-      console.log('Twitter API配额已用完:', responseData)
-      return res.status(429).json({
-        success: false,
-        error: 'Twitter API月度配额已用完，请等待下个月重置或升级套餐',
-        details: {
-          message: responseData.detail,
-          period: responseData.period,
-          account_id: responseData.account_id
-        }
-      })
-    }
+    // // 检查Twitter API特定错误
+    // if (responseData.title === 'UsageCapExceeded') {
+    //   console.log('Twitter API配额已用完:', responseData)
+    //   return res.status(429).json({
+    //     success: false,
+    //     error: 'Twitter API月度配额已用完，请等待下个月重置或升级套餐',
+    //     details: {
+    //       message: responseData.detail,
+    //       period: responseData.period,
+    //       account_id: responseData.account_id
+    //     }
+    //   })
+    // }
 
     // 检查429错误（请求过于频繁）或其他非200状态码
     if (response.status !== 200) {

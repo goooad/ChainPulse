@@ -149,6 +149,44 @@ export class KimiService {
       if (response.data.data) {
         // 如果后端已经解析了 JSON，直接使用
         analysisResult = response.data.data;
+        
+        // 如果返回的是字符串，尝试解析JSON
+        if (typeof analysisResult === 'string') {
+          try {
+            // 提取JSON部分
+            const jsonMatch = analysisResult.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              analysisResult = JSON.parse(jsonMatch[0]);
+            } else {
+              // 如果没有找到JSON，返回默认结果
+              analysisResult = {
+                sentiment: 'neutral',
+                score: 0,
+                confidence: 0.5,
+                keywords: ['分析中'],
+                analysis: '分析结果解析失败，请重试'
+              };
+            }
+          } catch (parseError) {
+            console.error('JSON解析失败:', parseError);
+            analysisResult = {
+              sentiment: 'neutral',
+              score: 0,
+              confidence: 0.5,
+              keywords: ['分析中'],
+              analysis: '分析结果解析失败，请重试'
+            };
+          }
+        }
+        
+        // 过滤掉不需要的提示文本
+        if (analysisResult.analysis && typeof analysisResult.analysis === 'string') {
+          if (analysisResult.analysis.includes('请提供至少1000字的深度分析') || 
+              analysisResult.analysis.includes('详细分析报告 - 请提供')) {
+            analysisResult.analysis = '正在生成详细分析报告，请稍候...';
+          }
+        }
+        
       } else if (response.data.sentiment) {
         // 如果数据直接在 response.data 中
         analysisResult = {
@@ -177,34 +215,71 @@ export class KimiService {
 
 
   static async analyzeNFTSentiment(tweets: string[], collection: string): Promise<KimiAnalysisResponse> {
-    const prompt = `请分析以下关于NFT项目"${collection}"的推文内容，进行情绪分析：
+    const prompt = `请对以下关于NFT项目"${collection}"的Twitter推文数据进行深度情绪分析：
 
-任务要求：
-1. 分析整体情绪倾向（positive/negative/neutral）
-2. 给出情绪得分（-1到1之间，-1最负面，1最正面，0中性）
-3. 计算分析置信度（0到1之间）
-4. 提取关键词（5-10个最重要的词汇）
-5. 提供详细的分析说明（200字左右）
+## 分析目标
+NFT项目: ${collection}
+推文总数: ${tweets.length}
+分析样本: ${Math.min(tweets.length, 20)} 条推文
 
-分析维度：
-- 价格趋势讨论
-- 项目发展前景
-- 社区活跃度
-- 技术创新
-- 市场表现
-- 风险因素
+## 推文内容详细数据
+${tweets.slice(0, 20).map((tweet, index) => {
+  return `${index + 1}. "${tweet}"`;
+}).join('\n\n')}
 
-请严格按照以下JSON格式返回结果：
+## 分析维度要求
+
+### 1. 整体情绪判断
+- 基于推文内容的情绪倾向分析
+- 识别情绪的强度和一致性
+- 考虑隐含的市场预期
+
+### 2. 市场信号分析
+- 价格相关讨论（涨跌预期、价值判断、支撑阻力）
+- 交易活跃度信号（买入、卖出、持有意向、FOMO情绪）
+- 项目发展动态（新功能、合作伙伴、路线图更新、团队动态）
+- 社区活跃度（用户参与度、讨论热度、社区建设）
+
+### 3. 风险因素识别
+- 负面情绪的具体原因和严重程度
+- 市场担忧和质疑声音（技术风险、监管风险、流动性风险）
+- 竞争对手影响和市场地位变化
+- 宏观环境对项目的潜在影响
+
+### 4. 机会点发现
+- 积极信号和看涨因素分析
+- 社区支持度和用户忠诚度评估
+- 创新亮点和差异化竞争优势
+- 市场机会和增长潜力评估
+
+### 5. 技术面分析
+- 链上数据相关讨论（交易量、持有者数量、地板价）
+- 技术指标和图表分析相关内容
+- 市场流动性和深度分析
+
+### 6. 基本面分析
+- 项目团队和背景评价
+- 商业模式和盈利能力讨论
+- 合作伙伴和生态系统建设
+- 长期价值和发展前景
+
+请返回以下JSON格式的深度分析结果：
 {
   "sentiment": "positive/negative/neutral",
-  "score": 数值,
-  "confidence": 数值,
-  "keywords": ["关键词1", "关键词2", ...],
-  "analysis": "详细分析说明"
+  "score": 数值(-1到1之间，-1最负面，1最正面),
+  "confidence": 置信度(0到1之间),
+  "keywords": ["关键词1", "关键词2", "关键词3", "关键词4", "关键词5"],
+  "analysis": "详细分析报告 - 请提供至少1000字的深度分析，包含以下结构：\n\n## 📊 整体情绪概况\n[基于推文内容的整体情绪判断，包括情绪分布、强度分析、一致性评估]\n\n## 🔍 市场信号解读\n[价格预期分析、交易意向统计、项目发展动态解读、社区活跃度评估]\n\n## ⚠️ 风险因素评估\n[负面因素详细分析、潜在风险识别、市场担忧点梳理、竞争环境分析]\n\n## 🚀 机会点识别\n[积极因素挖掘、增长潜力评估、竞争优势分析、市场机会识别]\n\n## 📈 技术面洞察\n[链上数据讨论、技术指标分析、流动性评估、价格走势预期]\n\n## 🏗️ 基本面分析\n[项目基本面评估、团队背景分析、商业模式评价、长期价值判断]\n\n## 🎯 关键词深度解读\n[重要关键词的深层含义分析、市场情绪指标、热点话题解读]\n\n## 💡 投资策略建议\n[基于分析的具体操作建议、风险控制措施、时机把握要点、仓位管理建议]\n\n## 📋 总结与展望\n[核心观点总结、短期和长期展望、关键关注点提醒]"
 }
 
-推文内容：
-${tweets.join('\n---\n')}`;
+分析要求：
+1. sentiment必须准确反映主流情绪倾向，综合考虑正面、负面、中性内容的权重
+2. score要基于内容深度分析，考虑情绪强度、市场预期、风险收益比
+3. confidence基于样本质量、情绪一致性、信息可靠性进行评估
+4. keywords选择最具代表性和分析价值的词汇，体现市场关注焦点
+5. analysis必须专业、详细、有条理，为用户提供实用的投资决策参考
+
+请基于以上完整数据进行专业的NFT市场情绪分析，确保分析报告具有实际指导价值。`;
 
     return this.analyzeSentiment({
       texts: tweets,

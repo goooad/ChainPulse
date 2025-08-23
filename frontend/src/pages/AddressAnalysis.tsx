@@ -3,6 +3,48 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 
+// 科技感加载动画组件
+const TechLoadingSpinner: React.FC<{ text: string }> = ({ text }) => {
+  return (
+    <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-purple-900 rounded-xl border-2 border-dashed border-blue-300 dark:border-purple-600 mb-6">
+      <div className="relative mb-6">
+        {/* 外圈旋转 */}
+        <div className="w-16 h-16 border-4 border-blue-200 dark:border-blue-700 rounded-full animate-spin">
+          <div className="w-full h-full border-4 border-transparent border-t-blue-600 dark:border-t-blue-400 rounded-full animate-pulse"></div>
+        </div>
+        {/* 内圈反向旋转 */}
+        <div className="absolute top-2 left-2 w-12 h-12 border-4 border-purple-200 dark:border-purple-700 rounded-full animate-spin" style={{ animationDirection: 'reverse' }}>
+          <div className="w-full h-full border-4 border-transparent border-t-purple-600 dark:border-t-purple-400 rounded-full"></div>
+        </div>
+        {/* 中心图标 */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <svg className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        </div>
+      </div>
+      
+      {/* 加载文字 */}
+      <div className="text-center">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 flex items-center gap-2 justify-center">
+          <svg className="w-5 h-5 text-yellow-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          {text}
+          <svg className="w-5 h-5 text-yellow-500 animate-bounce" style={{ animationDelay: '0.5s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </h3>
+        <div className="flex items-center justify-center gap-1">
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface Transaction {
   hash: string;
   from: string;
@@ -44,7 +86,7 @@ const AddressAnalysis: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'eth' | 'token' | 'internal'>('eth');
   const [displayCount, setDisplayCount] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   const isValidAddress = (addr: string): boolean => {
     return /^0x[a-fA-F0-9]{40}$/.test(addr);
@@ -341,7 +383,12 @@ const AddressAnalysis: React.FC = () => {
           </Card>
         )}
 
-        {/* 详情与标签 */}
+        {/* 加载动画 */}
+        {loading && (
+          <TechLoadingSpinner text="🔍 正在分析地址交易数据..." />
+        )}
+
+        {/* 概览统计 - 多彩渐变卡片 */}
         {result && (
           <Card className="border-slate-200 shadow-sm">
             <CardHeader className="pb-2">

@@ -32,11 +32,23 @@ router.post('/analyze', async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: '你是一个专业的NFT市场情绪分析师，擅长分析社交媒体数据并提供准确的情绪判断。'
+            content: '你是一个专业的NFT市场情绪分析师，擅长分析社交媒体数据并提供准确的情绪判断。请严格按照JSON格式返回分析结果，确保JSON格式正确，所有属性之间用逗号分隔。'
           },
           {
             role: 'user',
-            content: prompt || texts || '请分析NFT市场情绪'
+            content: `${prompt || texts || '请分析NFT市场情绪'}
+
+请严格按照以下JSON格式返回分析结果，注意所有属性之间必须用逗号分隔：
+
+{
+  "sentiment": "positive/negative/neutral",
+  "score": 0.0-1.0之间的数字,
+  "confidence": 0.0-1.0之间的数字,
+  "keywords": ["关键词1", "关键词2", "关键词3"],
+  "analysis": "详细的分析报告内容，包含完整的市场分析"
+}
+
+重要：请确保返回的是标准的JSON格式，所有属性之间用逗号分隔，字符串内容中的换行符用\\n表示。`
           }
         ],
         temperature: 0.3,
@@ -86,19 +98,28 @@ router.post('/analyze', async (req, res) => {
       // 清理可能的markdown格式
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
       console.log('清理后的内容:', cleanContent)
+      
       analysisResult = JSON.parse(cleanContent)
-      console.log('解析成功的结果:', analysisResult)
+      console.log('JSON解析成功:', analysisResult)
+      
+      // 清理analysis字段中的提示文本
+      if (analysisResult.analysis && typeof analysisResult.analysis === 'string') {
+        analysisResult.analysis = analysisResult.analysis
+          .replace(/详细分析报告\s*-\s*请提供至少1000字的深度分析[^:]*:\s*/g, '')
+          .trim();
+      }
+      
     } catch (parseError: any) {
       console.log('JSON解析失败，错误:', parseError.message)
       console.log('尝试解析的内容:', content)
       
-      // 如果解析失败，返回默认结果
+      // 如果JSON解析失败，返回默认结果
       analysisResult = {
         sentiment: 'neutral',
         score: 0.5,
         confidence: 0.3,
         keywords: ['NFT', '分析'],
-        analysis: content || '分析完成，但格式解析失败。'
+        analysis: '抱歉，分析结果格式解析失败。请重新尝试分析。'
       }
     }
 
@@ -115,7 +136,7 @@ router.post('/analyze', async (req, res) => {
 
     res.json({
       success: true,
-      ...responseData  // 直接展开数据，而不是嵌套在data字段中
+      data: responseData  // 将数据嵌套在data字段中，与前端期望一致
     })
 
   } catch (error: any) {

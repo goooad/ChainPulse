@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Search, TrendingUp, TrendingDown, Activity, Twitter, Brain, AlertCircle, Heart, Zap } from 'lucide-react';
-import { NFTSentimentService, ConfigService, TwitterService, KimiService } from '../services/api';
+import { ConfigService, TwitterService, KimiService } from '../services/api';
 import { NFTSentimentData, TwitterSearchResponse } from '../types/api';
-import { SentimentUtils, TimeUtils, ValidationUtils } from '../utils/sentiment';
+import { SentimentUtils, ValidationUtils } from '../utils/sentiment';
 import { NFT_SENTIMENT_CONFIG } from '../config/api';
 
 // 科技感加载动画组件
@@ -248,94 +248,6 @@ const NFTSentiment: React.FC = () => {
         </div>
       )}
 
-      {/* 分析结果 */}
-      {sentimentData && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* 情绪概览 */}
-          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg border border-gray-100 dark:border-gray-600 p-6 hover:shadow-xl transition-shadow duration-300">
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800">
-              <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
-                <Brain className="w-6 h-6 text-white" />
-              </div>
-              情绪概览
-            </h3>
-            <div className={`inline-flex items-center gap-3 px-6 py-4 rounded-2xl border-2 shadow-lg transform hover:scale-105 transition-all duration-200 ${SentimentUtils.getSentimentColor(sentimentData.sentiment)} font-bold text-lg`}>
-              <div className="text-2xl">
-                {getSentimentIcon(sentimentData.sentiment)}
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-lg">
-                  {SentimentUtils.getSentimentDescription(sentimentData.sentiment)}
-                </span>
-                <span className="text-sm opacity-80">
-                  {SentimentUtils.getIntensityDescription(SentimentUtils.getSentimentIntensity(sentimentData.score))}
-                </span>
-              </div>
-            </div>
-            <div className="mt-6 space-y-4">
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-700 font-medium">情绪得分:</span>
-                <div className="flex items-center gap-3">
-                  <div className="w-24 h-3 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-500 ${sentimentData.score >= 0 ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gradient-to-r from-red-400 to-red-600'}`}
-                      style={{ width: `${Math.abs(sentimentData.score) * 50 + 50}%` }}
-                    />
-                  </div>
-                  <span className="font-bold text-lg">{SentimentUtils.formatScore(sentimentData.score)}</span>
-                </div>
-              </div>
-              <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-700 font-medium">置信度:</span>
-                <span className="font-bold text-lg text-blue-600">{SentimentUtils.formatConfidence(sentimentData.confidence)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 关键词 */}
-          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg border border-gray-100 dark:border-gray-600 p-6 hover:shadow-xl transition-shadow duration-300">
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
-                <Search className="w-6 h-6 text-white" />
-              </div>
-              关键词分析
-            </h3>
-            <div className="flex flex-wrap gap-3">
-              {sentimentData.keywords.slice(0, NFT_SENTIMENT_CONFIG.SENTIMENT.KEYWORDS_LIMIT).map((keyword, index) => (
-                <span
-                  key={index}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 ${SentimentUtils.getKeywordColor(index)} border-2`}
-                >
-                  #{keyword}
-                </span>
-              ))}
-            </div>
-            {sentimentData.keywords.length === 0 && (
-              <div className="text-center py-8">
-                <div className="text-4xl mb-2">🔍</div>
-                <p className="text-gray-500 font-medium">暂无关键词数据</p>
-              </div>
-            )}
-          </div>
-
-          {/* Twitter数据统计 */}
-          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg border border-gray-100 dark:border-gray-600 p-6 hover:shadow-xl transition-shadow duration-300">
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800">
-              <div className="p-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg">
-                <Twitter className="w-6 h-6 text-white" />
-              </div>
-              数据来源
-            </h3>
-            <div className="space-y-4">
-              <div className="flex justify-between p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
-                <span className="text-gray-700 font-medium">总推文:</span>
-                <span className="font-bold text-xl text-blue-600">{twitterData?.total || 0}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* 情绪摘要 */}
       {sentimentData && (
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-6 border border-blue-100">
@@ -411,6 +323,78 @@ const NFTSentiment: React.FC = () => {
         </div>
       )}
 
+      {/* 情绪概览和关键词分析 - 放在推文下面 */}
+      {sentimentData && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* 情绪概览 */}
+          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg border border-gray-100 dark:border-gray-600 p-6 hover:shadow-xl transition-shadow duration-300">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800">
+              <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+              情绪概览
+            </h3>
+            <div className={`inline-flex items-center gap-3 px-6 py-4 rounded-2xl border-2 shadow-lg transform hover:scale-105 transition-all duration-200 ${SentimentUtils.getSentimentColor(sentimentData.sentiment)} font-bold text-lg`}>
+              <div className="text-2xl">
+                {getSentimentIcon(sentimentData.sentiment)}
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-lg">
+                  {SentimentUtils.getSentimentDescription(sentimentData.sentiment)}
+                </span>
+                <span className="text-sm opacity-80">
+                  {SentimentUtils.getIntensityDescription(SentimentUtils.getSentimentIntensity(sentimentData.score))}
+                </span>
+              </div>
+            </div>
+            <div className="mt-6 space-y-4">
+              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <span className="text-gray-700 font-medium">情绪得分:</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-24 h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-blue-400 to-blue-600"
+                      style={{ width: `${Math.abs(sentimentData.score) * 50 + 50}%` }}
+                    />
+                  </div>
+                  <span className="font-bold text-lg text-gray-800 dark:text-gray-200">{SentimentUtils.formatScore(sentimentData.score)}</span>
+                </div>
+              </div>
+              <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-gray-700 font-medium">置信度:</span>
+                <span className="font-bold text-lg text-blue-600">{SentimentUtils.formatConfidence(sentimentData.confidence)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 关键词分析 */}
+          <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg border border-gray-100 dark:border-gray-600 p-6 hover:shadow-xl transition-shadow duration-300">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-3 text-gray-800">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg">
+                <Search className="w-6 h-6 text-white" />
+              </div>
+              关键词分析
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {sentimentData.keywords.slice(0, NFT_SENTIMENT_CONFIG.SENTIMENT.KEYWORDS_LIMIT).map((keyword, index) => (
+                <span
+                  key={index}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 ${SentimentUtils.getKeywordColor(index)} border-2`}
+                >
+                  #{keyword}
+                </span>
+              ))}
+            </div>
+            {sentimentData.keywords.length === 0 && (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-2">🔍</div>
+                <p className="text-gray-500 font-medium">暂无关键词数据</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Kimi 分析加载状态 */}
       {kimiLoading && (
         <div className="mb-6">
@@ -441,13 +425,6 @@ const NFTSentiment: React.FC = () => {
       {twitterLoading && (
         <div className="mb-6">
           <TechLoadingSpinner text="🐦 正在获取 Twitter 数据..." />
-        </div>
-      )}
-
-      {/* Kimi 分析加载状态 */}
-      {kimiLoading && (
-        <div className="mb-6">
-          <TechLoadingSpinner text="🤖 AI 正在分析推文情绪..." />
         </div>
       )}
 
