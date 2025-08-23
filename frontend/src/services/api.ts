@@ -143,17 +143,34 @@ export class KimiService {
         throw new Error(response.data.error || 'Kimi情绪分析失败');
       }
 
-      // 返回分析结果，现在数据直接在response.data中，不再嵌套在data字段中
-      return {
-        sentiment: response.data.sentiment,
-        score: response.data.score,
-        confidence: response.data.confidence,
-        keywords: response.data.keywords,
-        analysis: response.data.analysis
-      };
-    } catch (error) {
+      // 处理 Kimi API 的响应格式
+      let analysisResult;
+      
+      if (response.data.data) {
+        // 如果后端已经解析了 JSON，直接使用
+        analysisResult = response.data.data;
+      } else if (response.data.sentiment) {
+        // 如果数据直接在 response.data 中
+        analysisResult = {
+          sentiment: response.data.sentiment,
+          score: response.data.score,
+          confidence: response.data.confidence,
+          keywords: response.data.keywords,
+          analysis: response.data.analysis
+        };
+      } else {
+        throw new Error('Kimi API 响应格式不正确');
+      }
+
+      return analysisResult;
+    } catch (error: any) {
       console.error('Kimi API 调用失败:', error);
-      throw new Error('Kimi情绪分析失败，请稍后重试');
+      
+      if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      } else {
+        throw new Error('Kimi情绪分析失败，请稍后重试');
+      }
     }
   }
 

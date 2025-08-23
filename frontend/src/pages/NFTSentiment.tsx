@@ -1,13 +1,51 @@
 import React, { useState } from 'react';
-import { Search, TrendingUp, TrendingDown, Activity, Twitter, Brain, AlertCircle, Heart } from 'lucide-react';
-import { NFTSentimentService, ConfigService } from '../services/api';
+import { Search, TrendingUp, TrendingDown, Activity, Twitter, Brain, AlertCircle, Heart, Zap } from 'lucide-react';
+import { NFTSentimentService, ConfigService, TwitterService, KimiService } from '../services/api';
 import { NFTSentimentData, TwitterSearchResponse } from '../types/api';
 import { SentimentUtils, TimeUtils, ValidationUtils } from '../utils/sentiment';
 import { NFT_SENTIMENT_CONFIG } from '../config/api';
 
+// 科技感加载动画组件
+const TechLoadingSpinner: React.FC<{ text: string }> = ({ text }) => {
+  return (
+    <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-purple-900 rounded-xl border-2 border-dashed border-blue-300 dark:border-purple-600">
+      <div className="relative mb-6">
+        {/* 外圈旋转 */}
+        <div className="w-16 h-16 border-4 border-blue-200 dark:border-blue-700 rounded-full animate-spin">
+          <div className="w-full h-full border-4 border-transparent border-t-blue-600 dark:border-t-blue-400 rounded-full animate-pulse"></div>
+        </div>
+        {/* 内圈反向旋转 */}
+        <div className="absolute top-2 left-2 w-12 h-12 border-4 border-purple-200 dark:border-purple-700 rounded-full animate-spin" style={{ animationDirection: 'reverse' }}>
+          <div className="w-full h-full border-4 border-transparent border-t-purple-600 dark:border-t-purple-400 rounded-full"></div>
+        </div>
+        {/* 中心图标 */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <Brain className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-pulse" />
+        </div>
+      </div>
+      
+      {/* 加载文字 */}
+      <div className="text-center">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 flex items-center gap-2">
+          <Zap className="w-5 h-5 text-yellow-500 animate-bounce" />
+          {text}
+          <Zap className="w-5 h-5 text-yellow-500 animate-bounce" style={{ animationDelay: '0.5s' }} />
+        </h3>
+        <div className="flex items-center justify-center gap-1">
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const NFTSentiment: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [twitterLoading, setTwitterLoading] = useState(false);
+  const [kimiLoading, setKimiLoading] = useState(false);
   const [sentimentData, setSentimentData] = useState<NFTSentimentData | null>(null);
   const [twitterData, setTwitterData] = useState<TwitterSearchResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -45,25 +83,40 @@ const NFTSentiment: React.FC = () => {
     }
 
     setLoading(true);
+    setTwitterLoading(true);
     setError(null);
     setSentimentData(null);
     setTwitterData(null);
 
     try {
-      // 使用NFTSentimentService进行综合分析
-      const result = await NFTSentimentService.analyzeSentiment(searchQuery.trim());
+      // 第一步：获取 Twitter 数据
+      console.log('开始获取 Twitter 数据...');
+      const twitterResult = await TwitterService.getTweetsByKeyword(searchQuery.trim(), 50);
       
-      setTwitterData(result.twitterData);
+      // 立即显示 Twitter 数据
+      setTwitterData(twitterResult);
+      setTwitterLoading(false);
+      
+      // 第二步：开始 Kimi 分析
+      console.log('开始 Kimi 情绪分析...');
+      setKimiLoading(true);
+      
+      // 构建分析文本
+      const analysisTexts = twitterResult.tweets
+        .slice(0, 20)
+        .map((tweet: any) => tweet.text);
+      
+      const kimiResult = await KimiService.analyzeNFTSentiment(analysisTexts, searchQuery.trim());
 
-      // 构建情绪数据
+      // 构建完整的情绪数据
       const sentiment: NFTSentimentData = {
         collection: searchQuery.trim(),
-        sentiment: result.sentimentAnalysis.sentiment,
-        score: result.sentimentAnalysis.score,
-        confidence: result.sentimentAnalysis.confidence,
-        tweetCount: result.twitterData.total,
-        analysis: result.sentimentAnalysis.analysis,
-        keywords: result.sentimentAnalysis.keywords,
+        sentiment: kimiResult.sentiment || 'neutral',
+        score: kimiResult.score || 0,
+        confidence: kimiResult.confidence || 0.5,
+        tweetCount: twitterResult.total,
+        analysis: kimiResult.analysis || '分析完成',
+        keywords: kimiResult.keywords || [],
         timestamp: new Date().toISOString()
       };
 
@@ -73,8 +126,12 @@ const NFTSentiment: React.FC = () => {
       }
 
       setSentimentData(sentiment);
+      setKimiLoading(false);
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : '分析失败');
+      setTwitterLoading(false);
+      setKimiLoading(false);
     } finally {
       setLoading(false);
     }
@@ -289,18 +346,90 @@ const NFTSentiment: React.FC = () => {
         </div>
       )}
 
+      {/* Twitter 推文列表 */}
+      {twitterData && twitterData.tweets && twitterData.tweets.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 p-6 mb-6">
+          <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-800 dark:text-gray-200">
+            <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-lg">
+              <Twitter className="w-7 h-7 text-white" />
+            </div>
+            🐦 相关推文 ({twitterData.total} 条)
+          </h3>
+          <div className="grid gap-4 max-h-96 overflow-y-auto">
+            {twitterData.tweets.slice(0, 10).map((tweet: any, index: number) => (
+              <div key={index} className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-lg p-4 border border-blue-200 dark:border-blue-600/50 hover:shadow-md transition-shadow duration-200">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                      <Twitter className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-bold text-gray-900 dark:text-gray-100">@{tweet.username || 'user'}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {tweet.created_at ? new Date(tweet.created_at).toLocaleDateString('zh-CN') : ''}
+                      </span>
+                    </div>
+                    <p className="text-gray-800 dark:text-gray-200 leading-relaxed break-words">
+                      {tweet.text}
+                    </p>
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-4 h-4" />
+                          {tweet.public_metrics?.like_count || 0}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Activity className="w-4 h-4" />
+                          {tweet.public_metrics?.retweet_count || 0}
+                        </span>
+                      </div>
+                      {tweet.url && (
+                        <a 
+                          href={tweet.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium flex items-center gap-1 hover:underline transition-colors duration-200"
+                        >
+                          查看原推文 →
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {twitterData.tweets.length > 10 && (
+            <div className="mt-4 text-center">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                显示前 10 条推文，共 {twitterData.total} 条
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Kimi 分析加载状态 */}
+      {kimiLoading && (
+        <div className="mb-6">
+          <TechLoadingSpinner text="🤖 AI 正在分析推文情绪..." />
+        </div>
+      )}
+
       {/* 详细分析 */}
       {sentimentData && (
         <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900 rounded-xl shadow-xl border-2 border-purple-200 dark:border-purple-600 p-8 mb-8">
-          <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-800">
+          <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-800 dark:text-gray-200">
             <div className="p-3 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl shadow-lg">
               <Brain className="w-7 h-7 text-white" />
             </div>
             📊 详细分析报告
           </h3>
           <div className="prose max-w-none">
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border-l-8 border-purple-500 shadow-lg">
-              <p className="text-gray-800 leading-relaxed whitespace-pre-line text-lg font-medium">
+            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-xl p-6 border-l-8 border-purple-500 shadow-lg">
+              <p className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line text-lg font-medium">
                 {sentimentData.analysis}
               </p>
             </div>
@@ -308,60 +437,17 @@ const NFTSentiment: React.FC = () => {
         </div>
       )}
 
-      {/* 推文列表 */}
-      {twitterData && (
-        <div className="bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900 rounded-xl shadow-xl border-2 border-blue-200 dark:border-blue-600 p-8">
-          <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-800">
-            <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-lg">
-              <Twitter className="w-7 h-7 text-white" />
-            </div>
-            🐦 相关推文 
-            <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-xl font-bold text-xl shadow-lg">
-              ({twitterData.total.toLocaleString()} 条)
-            </span>
-          </h3>
-          <div className="space-y-4 max-h-96 overflow-y-auto">
-            {twitterData.tweets.slice(0, 10).map((tweet) => (
-              <div key={tweet.id} className="border-l-4 border-blue-200 pl-4 py-3 hover:bg-gray-50 transition-colors rounded-lg">
-                <p className="text-gray-800 mb-3 leading-relaxed">{tweet.text}</p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span className="font-medium">@{tweet.username || tweet.author}</span>
-                    <span>{TimeUtils.formatTimestamp(tweet.created_at)}</span>
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1">
-                        ❤️ {(tweet.public_metrics?.like_count || tweet.metrics?.like_count || 0).toLocaleString()}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        🔄 {(tweet.public_metrics?.retweet_count || tweet.metrics?.retweet_count || 0).toLocaleString()}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        💬 {(tweet.public_metrics?.reply_count || tweet.metrics?.reply_count || 0).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                  {tweet.url && (
-                    <a
-                      href={tweet.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
-                    >
-                      <Twitter className="w-4 h-4" />
-                      查看推文
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
-            {twitterData.tweets.length > 10 && (
-              <div className="text-center py-4">
-                <p className="text-gray-500 text-sm">
-                  显示前10条推文，共{twitterData.total.toLocaleString()}条
-                </p>
-              </div>
-            )}
-          </div>
+      {/* Twitter 数据加载状态 */}
+      {twitterLoading && (
+        <div className="mb-6">
+          <TechLoadingSpinner text="🐦 正在获取 Twitter 数据..." />
+        </div>
+      )}
+
+      {/* Kimi 分析加载状态 */}
+      {kimiLoading && (
+        <div className="mb-6">
+          <TechLoadingSpinner text="🤖 AI 正在分析推文情绪..." />
         </div>
       )}
 

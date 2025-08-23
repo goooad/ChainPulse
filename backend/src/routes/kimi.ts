@@ -78,84 +78,27 @@ router.post('/analyze', async (req, res) => {
       })
     }
 
-    // 修改 prompt 让 Kimi 返回 JSON 格式
-    const systemPrompt = `你是一个专业的NFT市场情绪分析师。请分析给定的社交媒体数据，并严格按照以下JSON格式返回结果：
-
-{
-  "sentiment": "positive/negative/neutral",
-  "score": 0.0-1.0之间的数值,
-  "confidence": 0.0-1.0之间的置信度,
-  "keywords": ["关键词1", "关键词2"],
-  "analysis": "详细分析说明"
-}
-
-只返回JSON，不要添加任何其他文字。`
-
-    // 重新发送请求，使用更明确的 prompt
-    const newFetchOptions: any = {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'moonshot-v1-8k',
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: prompt || texts || '请分析NFT市场情绪'
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 2000,
-      }),
-      signal: AbortSignal.timeout(30000)
-    }
-
-    if (proxyUrl) {
-      newFetchOptions.agent = new HttpsProxyAgent(proxyUrl)
-    }
-
-    const newResponse = await fetch('https://api.moonshot.cn/v1/chat/completions', newFetchOptions)
-    
-    if (!newResponse.ok) {
-      // 如果 API 调用失败，返回默认分析结果
-      const responseData = {
-        sentiment: 'neutral',
-        score: 0.5,
-        confidence: 0.3,
-        keywords: ['NFT', '市场'],
-        analysis: '由于API调用失败，无法进行详细分析。建议稍后重试。'
-      };
-      
-      return res.json({
-        success: true,
-        ...responseData
-      })
-    }
-
-    const newApiResponseData = await newResponse.json()
-    const newContent = newApiResponseData.choices?.[0]?.message?.content
+    console.log('Kimi API 返回的原始内容:', content)
 
     // 尝试解析JSON响应
     let analysisResult
     try {
       // 清理可能的markdown格式
-      const cleanContent = newContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+      console.log('清理后的内容:', cleanContent)
       analysisResult = JSON.parse(cleanContent)
+      console.log('解析成功的结果:', analysisResult)
     } catch (parseError: any) {
-      console.log('JSON解析失败，使用默认结果:', parseError.message)
+      console.log('JSON解析失败，错误:', parseError.message)
+      console.log('尝试解析的内容:', content)
+      
       // 如果解析失败，返回默认结果
       analysisResult = {
         sentiment: 'neutral',
         score: 0.5,
         confidence: 0.3,
         keywords: ['NFT', '分析'],
-        analysis: newContent || '分析完成，但格式解析失败。'
+        analysis: content || '分析完成，但格式解析失败。'
       }
     }
 
@@ -165,7 +108,7 @@ router.post('/analyze', async (req, res) => {
       score: Number(analysisResult.score) || 0.5,
       confidence: Number(analysisResult.confidence) || 0.5,
       keywords: Array.isArray(analysisResult.keywords) ? analysisResult.keywords : ['NFT'],
-      analysis: analysisResult.analysis || newContent || '分析完成'
+      analysis: analysisResult.analysis || content || '分析完成'
     };
 
     console.log('返回给前端的数据:', JSON.stringify(responseData, null, 2));
