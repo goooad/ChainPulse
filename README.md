@@ -64,12 +64,13 @@ ChainPulse/
 ```bash
 # 克隆项目
 git clone https://github.com/your-username/chainpulse.git
-cd chainpulse
+cd ChainPulse
 
 # 安装所有依赖
-npm run install:all
+cd backend && npm install
+npm run dev
 
-# 启动开发环境
+cd ../frontend && npm install
 npm run dev
 ```
 
@@ -90,9 +91,7 @@ NODE_ENV=development
 ```
 
 ### 访问应用
-- 🌐 **Web应用**: http://localhost:5173
 - 🔧 **API服务**: http://localhost:3001
-- 🛡️ **Chrome扩展**: 加载 `extension/` 目录
 
 ---
 
@@ -254,12 +253,6 @@ npm run build    # 构建扩展
 - 遵循 ESLint 代码规范
 - 编写单元测试覆盖核心功能
 - 提交信息使用约定式提交格式
-
----
-
-## 📄 许可证
-
-本项目采用 [MIT 许可证](LICENSE) - 详见 LICENSE 文件
 
 ---
 
