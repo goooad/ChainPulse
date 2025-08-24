@@ -146,7 +146,7 @@ export class SentimentService {
       // Farcaster API调用
       const response = await axios.get('https://api.farcaster.xyz/v2/casts', {
         params: {
-          limit: 50,
+          limit: 10,
           cursor: ''
         }
       })

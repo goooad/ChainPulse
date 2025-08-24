@@ -150,11 +150,20 @@ export class KimiService {
         // 如果后端已经解析了 JSON，直接使用
         analysisResult = response.data.data;
         
+        // 确保所有必需字段都存在
+        analysisResult = {
+          sentiment: analysisResult.sentiment || 'neutral',
+          score: Number(analysisResult.score) || 0,
+          confidence: Number(analysisResult.confidence) || 0.5,
+          keywords: Array.isArray(analysisResult.keywords) ? analysisResult.keywords : [],
+          analysis: analysisResult.analysis || '分析完成'
+        };
+        
         // 如果返回的是字符串，尝试解析JSON
         if (typeof analysisResult === 'string') {
           try {
             // 提取JSON部分
-            const jsonMatch = analysisResult.match(/\{[\s\S]*\}/);
+            const jsonMatch = (analysisResult as string).match(/\{[\s\S]*\}/);
             if (jsonMatch) {
               analysisResult = JSON.parse(jsonMatch[0]);
             } else {

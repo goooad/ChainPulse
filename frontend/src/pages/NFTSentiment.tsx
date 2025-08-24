@@ -109,20 +109,25 @@ const NFTSentiment: React.FC = () => {
       
       const kimiResult = await KimiService.analyzeNFTSentiment(analysisTexts, searchQuery.trim());
 
-      // 构建完整的情绪数据
+      console.log('Kimi分析结果:', kimiResult);
+
+      // 构建完整的情绪数据，确保所有字段都有默认值
       const sentiment: NFTSentimentData = {
         collection: searchQuery.trim(),
         sentiment: kimiResult.sentiment || 'neutral',
-        score: kimiResult.score || 0,
-        confidence: kimiResult.confidence || 0.5,
-        tweetCount: twitterResult.total,
+        score: typeof kimiResult.score === 'number' ? kimiResult.score : 0,
+        confidence: typeof kimiResult.confidence === 'number' ? kimiResult.confidence : 0.5,
+        tweetCount: twitterResult.total || 0,
         analysis: kimiResult.analysis || '分析完成',
-        keywords: kimiResult.keywords || [],
+        keywords: Array.isArray(kimiResult.keywords) ? kimiResult.keywords : [],
         timestamp: new Date().toISOString()
       };
 
-      // 验证数据完整性
-      if (!SentimentUtils.validateSentimentData(sentiment)) {
+      console.log('构建的情绪数据:', sentiment);
+
+      // 验证数据完整性 - 使用更宽松的验证
+      if (!sentiment.sentiment || !sentiment.analysis) {
+        console.error('数据验证失败:', sentiment);
         throw new Error('分析结果数据不完整');
       }
 

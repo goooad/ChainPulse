@@ -22,7 +22,7 @@ router.get('/search', async (req, res) => {
 
     const searchParams = new URLSearchParams({
       query: `${query} NFT -is:retweet lang:en`,
-      max_results: max_results.toString(),
+      max_results: "10",
       'tweet.fields': (tweet_fields as string) || 'created_at,author_id,public_metrics,context_annotations',
       'expansions': 'author_id',
       'user.fields': 'username,name'
@@ -201,8 +201,8 @@ router.get('/search', async (req, res) => {
 // Twitter API 搜索推文 - POST方法
 router.post('/search', async (req, res) => {
   try {
-    const { query, max_results = 100, tweet_fields } = req.body
-    const validMaxResults = Math.max(10, Math.min(100, max_results))
+    const { query, max_results = 10, tweet_fields } = req.body
+    const validMaxResults = Math.max(10, Math.min(10, max_results))
     const bearerToken = process.env.TWITTER_API_KEY || process.env.TWITTER_BEARER_TOKEN
 
     console.log("Twitter API bearerToken: ",bearerToken)
@@ -216,7 +216,7 @@ router.post('/search', async (req, res) => {
 
     const searchParams = new URLSearchParams({
       query: `${query} NFT -is:retweet lang:en`,
-      max_results: max_results.toString(),
+      max_results: "10",
       'tweet.fields': tweet_fields || 'created_at,author_id,public_metrics,context_annotations',
       'expansions': 'author_id',
       'user.fields': 'username,name'

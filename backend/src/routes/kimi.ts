@@ -136,7 +136,7 @@ router.post('/analyze', async (req, res) => {
 
     res.json({
       success: true,
-      data: responseData  // 将数据嵌套在data字段中，与前端期望一致
+      data: responseData
     })
 
   } catch (error: any) {
@@ -147,6 +147,5 @@ router.post('/analyze', async (req, res) => {
     })
   }
 })
-
 
 export default router
