@@ -1,15 +1,22 @@
-# 🚀 ChainPulse - 链上脉搏
+# 🔧 ChainPulse - Web3数据分析工具
 
-> **AI驱动的区块链数据分析助手：NFT情绪预测 + 链上地址分析**
+> **开源的区块链数据分析工具：让每个人都能轻松获得专业级的链上数据洞察**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-43853D?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/)
 
-## 🎯 项目愿景
+## 🛠️ 项目定位
 
-ChainPulse 致力于链上数据分析，通过AI技术为用户提供实时的区块链洞察、情绪分析和风险评估，让每个人都能轻松理解复杂的链上数据。
+ChainPulse 是一个**开源的Web3基础设施工具**，专为区块链开发者、研究者和数据分析师设计。通过模块化的架构设计，为Web3生态系统提供强大的数据分析能力和开发工具支持。
+
+### 🎯 核心价值
+- **开发者友好**: 清晰的代码结构和文档，支持二次开发和定制
+- **模块化设计**: 可插拔的组件架构，支持功能扩展和集成
+- **浏览器插件**: 无缝集成到用户的Web3工作流中
+- **开源透明**: MIT许可证，社区驱动的持续改进
 
 ---
 
