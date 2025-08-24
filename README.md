@@ -279,6 +279,6 @@ npm run build    # 构建扩展
 
 **🚀 让我们一起构建Web3的未来！**
 
-[⭐ 给我们一个Star](https://github.com/your-username/chainpulse) | [🔔 关注更新](https://github.com/your-username/chainpulse/subscription) | [📢 分享项目](https://twitter.com/intent/tweet?text=Check%20out%20ChainPulse%20-%20AI-powered%20Web3%20analytics%20platform!&url=https://github.com/your-username/chainpulse)
+ [📢 分享项目](https://twitter.com/intent/tweet?text=Check%20out%20ChainPulse%20-%20AI-powered%20Web3%20analytics%20platform!&url=https://github.com/your-username/chainpulse)
 
 </div>
